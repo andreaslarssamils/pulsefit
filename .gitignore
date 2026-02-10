@@ -1,0 +1,17 @@
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Local DBs
+*.sqlite3
+
+# macOS
+.DS_Store
+
+# Environment files
+.env
+.env.*
+!.env.example
+env.py
