@@ -1,1 +1,1 @@
-web: gunicorn pulsefit.wsgi
+web: gunicorn config.wsgi
