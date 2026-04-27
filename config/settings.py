@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-_g$381e@x5&-z4(^2^9(c&03rjqca-30fq41az+o5g746v8)cj"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["pulsefit.herokuapp.com", "localhost", "127.0.0.1"]
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "pages",
 ]
 
 MIDDLEWARE = [
