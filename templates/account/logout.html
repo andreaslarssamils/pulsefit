@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Sign out — PulseFit{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-shell">
+        <div class="auth-card" style="text-align:center;">
+            <h1>{% trans "Sign out" %}</h1>
+            <p>{% trans "Are you sure you want to sign out?" %}</p>
+
+            <form method="post" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+                <button class="btn btn-primary btn-block" type="submit">{% trans "Sign out" %}</button>
+            </form>
+
+            <p style="margin-top: var(--space-base);">
+                <a href="/">&larr; {% trans "Back to home" %}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Create account — PulseFit{% endblock %}
+{% block meta_description %}Create a free PulseFit account and start training.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-shell">
+        <a class="back-link" href="/">&larr; {% trans "Back to home" %}</a>
+
+        <div class="auth-card">
+            <h1>{% trans "Create your account" %}</h1>
+
+            <form method="post" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-field">
+                    <label for="id_name">{% trans "Full Name" %}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="field-error">{{ form.name.errors }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    <label for="id_email">{% trans "Email" %}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    <label for="id_password1">{% trans "Password" %}</label>
+                    <div class="password-wrap">
+                        {{ form.password1 }}
+                        <button type="button" class="password-toggle" data-toggle-password="id_password1">Show</button>
+                    </div>
+                    {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    <label for="id_password2">{% trans "Confirm Password" %}</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors }}</div>{% endif %}
+                </div>
+
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+
+                <button class="btn btn-primary btn-block" type="submit" style="margin-top: var(--space-base);">
+                    {% trans "Create Account" %}
+                </button>
+            </form>
+
+            <div class="divider">{% trans "OR" %}</div>
+
+            <p style="text-align:center; margin:0;">
+                <a href="{% url 'account_login' %}">{% trans "Sign in" %}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Sign in — PulseFit{% endblock %}
+{% block meta_description %}Sign in to your PulseFit account.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-shell">
+        <a class="back-link" href="/">&larr; {% trans "Back to home" %}</a>
+
+        <div class="auth-card">
+            <h1>{% trans "Welcome back" %}</h1>
+
+            <form method="post" action="{% url 'account_login' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-field">
+                    <label for="id_login">{% trans "Email" %}</label>
+                    {{ form.login }}
+                    {% if form.login.errors %}<div class="field-error">{{ form.login.errors }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <label for="id_password" style="margin-bottom:0;">{% trans "Password" %}</label>
+                        <a href="{% url 'account_reset_password' %}" style="font-size:14px;">{% trans "Forgot password?" %}</a>
+                    </div>
+                    <div class="password-wrap" style="margin-top: var(--space-sm);">
+                        {{ form.password }}
+                        <button type="button" class="password-toggle" data-toggle-password="id_password">Show</button>
+                    </div>
+                    {% if form.password.errors %}<div class="field-error">{{ form.password.errors }}</div>{% endif %}
+                </div>
+
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+
+                <button class="btn btn-primary btn-block" type="submit" style="margin-top: var(--space-base);">
+                    {% trans "Sign In" %}
+                </button>
+            </form>
+
+            <div class="divider">{% trans "OR" %}</div>
+
+            <p style="text-align:center; margin:0;">
+                <a href="{% url 'account_signup' %}">{% trans "Sign up free" %}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
