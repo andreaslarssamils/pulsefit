@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Page not found — PulseFit{% endblock %}
+{% block meta_description %}The page you were looking for could not be found.{% endblock %}
+
+{% block content %}
+<section class="container" style="text-align:center; padding-block: var(--space-3xl);">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="display">Lost your <span class="text-accent">rhythm?</span></h1>
+    <p class="text-muted" style="max-width:520px; margin-inline:auto;">
+        The page you're looking for doesn't exist or has moved.
+    </p>
+    <a class="btn btn-primary" href="/" style="margin-top: var(--space-base);">Back to home</a>
+</section>
+{% endblock %}
