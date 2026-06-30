@@ -1,0 +1,11 @@
+<a class="catalog-card" href="{{ plan.get_absolute_url }}" data-category="{{ plan.category.slug }}">
+    <span class="card-media">
+        {% if plan.image %}<img src="{{ plan.image }}" alt="{{ plan.title }}">{% endif %}
+        {% if plan.premium_only %}<span class="badge badge--premium">Premium</span>{% endif %}
+    </span>
+    <span class="card-body">
+        <span class="eyebrow">{{ plan.category.name }}</span>
+        <span class="card-title">{{ plan.title }}</span>
+        <span class="price">${{ plan.price }}</span>
+    </span>
+</a>

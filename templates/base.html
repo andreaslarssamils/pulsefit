@@ -20,12 +20,12 @@
         <div class="container site-nav__inner">
             <a class="brand" href="/"><span class="brand__dot"></span>PulseFit</a>
 
-            {# Section links are placeholders until their apps are built (plans, shop, pricing, community). #}
+            {# Community + Pricing remain placeholders until Sprint 5 / Sprint 4. #}
             <nav>
                 <ul class="nav-links">
                     <li><a href="#">Community</a></li>
-                    <li><a href="#">Plans</a></li>
-                    <li><a href="#">Shop</a></li>
+                    <li><a href="{% url 'plans:list' %}"{% if request.resolver_match.app_name == 'plans' %} class="is-active"{% endif %}>Plans</a></li>
+                    <li><a href="{% url 'products:list' %}"{% if request.resolver_match.app_name == 'products' %} class="is-active"{% endif %}>Shop</a></li>
                     <li><a href="#">Pricing</a></li>
                 </ul>
             </nav>
@@ -67,8 +67,8 @@
             <div>
                 <h4>Product</h4>
                 <ul>
-                    <li><a href="#">Plans</a></li>
-                    <li><a href="#">Shop</a></li>
+                    <li><a href="{% url 'plans:list' %}">Plans</a></li>
+                    <li><a href="{% url 'products:list' %}">Shop</a></li>
                     <li><a href="#">Pricing</a></li>
                 </ul>
             </div>

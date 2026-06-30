@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Plans &amp; Programs — PulseFit{% endblock %}
+{% block meta_description %}Browse PulseFit training and nutrition plans — find a coach-built program that fits your goals.{% endblock %}
+
+{% block content %}
+<section class="container catalog">
+    <header class="catalog-header">
+        <p class="eyebrow">Plans &amp; Programs</p>
+        <h1>Expert Plans &amp; Programs</h1>
+        <p class="text-muted">Structured training and nutrition programs built by coaches.</p>
+    </header>
+
+    <div class="filter-tabs" role="tablist" aria-label="Filter plans by category">
+        <button type="button" class="filter-tab is-active" data-filter="all">All</button>
+        {% for category in categories %}
+        <button type="button" class="filter-tab" data-filter="{{ category.slug }}">{{ category.name }}</button>
+        {% endfor %}
+    </div>
+
+    <div class="catalog-grid" data-catalog-grid>
+        {% for plan in plans %}
+            {% include "plans/_plan_card.html" with plan=plan %}
+        {% endfor %}
+    </div>
+
+    <div class="empty-state" data-empty-state{% if plans %} hidden{% endif %}>
+        <span class="empty-state__icon" aria-hidden="true"></span>
+        <p class="empty-state__title">No products yet</p>
+        <p class="text-muted">Check back soon — new plans are on the way.</p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Shop — PulseFit{% endblock %}
+{% block meta_description %}Shop PulseFit fitness products — equipment, nutrition and merch to support your training.{% endblock %}
+
+{% block content %}
+<section class="container catalog">
+    <header class="catalog-header">
+        <p class="eyebrow">Shop</p>
+        <h1>Fitness Shop</h1>
+        <p class="text-muted">Equipment, nutrition and merch to support your training.</p>
+    </header>
+
+    <div class="filter-tabs" role="tablist" aria-label="Filter products by category">
+        <button type="button" class="filter-tab is-active" data-filter="all">All</button>
+        {% for category in categories %}
+        <button type="button" class="filter-tab" data-filter="{{ category.slug }}">{{ category.name }}</button>
+        {% endfor %}
+    </div>
+
+    <div class="catalog-grid" data-catalog-grid>
+        {% for product in products %}
+            {% include "products/_product_card.html" with product=product %}
+        {% endfor %}
+    </div>
+
+    <div class="empty-state" data-empty-state{% if products %} hidden{% endif %}>
+        <span class="empty-state__icon" aria-hidden="true"></span>
+        <p class="empty-state__title">No products yet</p>
+        <p class="text-muted">Check back soon — new products are on the way.</p>
+    </div>
+</section>
+{% endblock %}

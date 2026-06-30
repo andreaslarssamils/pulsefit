@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — PulseFit{% endblock %}
+{% block meta_description %}{{ product.description|striptags|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<section class="container detail">
+    <a class="back-link" href="{% url 'products:list' %}">&larr; Back to shop</a>
+
+    <div class="detail-layout">
+        <div class="detail-media card-media">
+            {% if product.image %}<img src="{{ product.image }}" alt="{{ product.name }}">{% endif %}
+            {% if product.in_stock %}
+                <span class="badge badge--instock">In stock</span>
+            {% else %}
+                <span class="badge badge--out">Out of stock</span>
+            {% endif %}
+        </div>
+
+        <div class="detail-info">
+            <p class="eyebrow">{{ product.category.name }}</p>
+            <h1>{{ product.name }}</h1>
+            <p class="price price--lg">${{ product.price }}</p>
+            <p class="text-muted">
+                {% if product.in_stock %}{{ product.stock }} in stock{% else %}Currently out of stock{% endif %}
+            </p>
+            <p>{{ product.description }}</p>
+
+            {# Inert in Sprint 2 — wired to the session cart in Sprint 3; disabled when out of stock (US-08). #}
+            <button type="button" class="btn btn-primary btn-block" data-add-to-cart{% if not product.in_stock %} disabled{% endif %}>Add to Cart</button>
+        </div>
+    </div>
+</section>
+{% endblock %}

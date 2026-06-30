@@ -1,0 +1,15 @@
+<a class="catalog-card{% if not product.in_stock %} catalog-card--muted{% endif %}" href="{{ product.get_absolute_url }}" data-category="{{ product.category.slug }}">
+    <span class="card-media">
+        {% if product.image %}<img src="{{ product.image }}" alt="{{ product.name }}">{% endif %}
+        {% if product.in_stock %}
+            <span class="badge badge--instock">In stock</span>
+        {% else %}
+            <span class="badge badge--out">Out of stock</span>
+        {% endif %}
+    </span>
+    <span class="card-body">
+        <span class="eyebrow">{{ product.category.name }}</span>
+        <span class="card-title">{{ product.name }}</span>
+        <span class="price">${{ product.price }}</span>
+    </span>
+</a>

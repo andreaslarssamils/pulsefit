@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ plan.title }} — PulseFit{% endblock %}
+{% block meta_description %}{{ plan.description|striptags|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<section class="container detail">
+    <a class="back-link" href="{% url 'plans:list' %}">&larr; All plans</a>
+
+    <div class="detail-layout">
+        <div class="detail-media card-media">
+            {% if plan.image %}<img src="{{ plan.image }}" alt="{{ plan.title }}">{% endif %}
+            {% if plan.premium_only %}<span class="badge badge--premium">Premium</span>{% endif %}
+        </div>
+
+        <div class="detail-info">
+            <p class="eyebrow">{{ plan.category.name }}</p>
+            <h1>{{ plan.title }}</h1>
+            <p class="price price--lg">${{ plan.price }}</p>
+            <p>{{ plan.description }}</p>
+
+            {% if plan.premium_only %}
+                {# Static upsell in Sprint 2 — gating + pricing page land in Sprint 4. #}
+                <button type="button" class="btn btn-primary btn-block" data-go-premium>Go Premium</button>
+            {% else %}
+                {# Inert in Sprint 2 — wired to the session cart in Sprint 3. #}
+                <button type="button" class="btn btn-primary btn-block" data-add-to-cart>Add to Cart</button>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

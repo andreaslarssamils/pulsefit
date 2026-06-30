@@ -208,6 +208,16 @@ main {
     width: 100%;
 }
 
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.btn:disabled:active {
+    transform: none;
+}
+
 /* ----------------------------- Cards ------------------------------ */
 .card {
     background-color: var(--surface-1);
@@ -486,5 +496,226 @@ select:focus {
 
     .footer-grid {
         grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ============================== Catalog =============================== */
+
+[hidden] {
+    display: none !important;
+}
+
+.catalog,
+.detail {
+    padding-block: var(--space-2xl);
+}
+
+.catalog-header {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto var(--space-xl);
+}
+
+.catalog-header h1 {
+    margin-bottom: var(--space-sm);
+}
+
+/* ----- Filter tabs (pill group) ----- */
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xs);
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto var(--space-2xl);
+    padding: var(--space-xs);
+    background-color: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+}
+
+.filter-tab {
+    border: none;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.filter-tab:hover {
+    color: var(--text-1);
+}
+
+.filter-tab.is-active {
+    background-color: var(--surface-2);
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.filter-tab:focus-visible {
+    outline: none;
+    box-shadow: var(--glow);
+}
+
+/* ----- Card grid ----- */
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-lg);
+}
+
+.catalog-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    color: var(--text-1);
+    text-decoration: none;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.catalog-card:hover {
+    border-color: var(--orange-500);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.catalog-card--muted {
+    opacity: 0.6;
+}
+
+/* ----- Media (image or gradient placeholder) ----- */
+.card-media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(135deg, var(--surface-2), var(--surface-1));
+    overflow: hidden;
+}
+
+.card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ----- Badges (overlaid on media) ----- */
+.badge {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background-color: rgba(8, 8, 8, 0.72);
+    color: var(--text-1);
+    backdrop-filter: blur(4px);
+}
+
+.badge--premium {
+    background: var(--pulse-gradient);
+    border-color: transparent;
+    color: #fff;
+}
+
+.badge--instock {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.badge--out {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+/* ----- Card body ----- */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-base) var(--space-lg) var(--space-lg);
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 26px;
+    color: var(--text-1);
+}
+
+.price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-1);
+}
+
+.price--lg {
+    font-size: 28px;
+    margin-bottom: var(--space-md);
+}
+
+/* ----- Empty state ("No products yet") ----- */
+.empty-state {
+    text-align: center;
+    max-width: 460px;
+    margin: var(--space-xl) auto 0;
+    padding: var(--space-3xl) var(--space-xl);
+    background-color: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+}
+
+.empty-state__icon {
+    display: inline-block;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-input);
+    border: 2px solid var(--border);
+    margin-bottom: var(--space-base);
+}
+
+.empty-state__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text-1);
+    margin-bottom: var(--space-xs);
+}
+
+/* ----- Detail page ----- */
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+    margin-top: var(--space-lg);
+}
+
+.detail-media {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-card);
+}
+
+.detail-info h1 {
+    margin-top: var(--space-xs);
+}
+
+@media (max-width: 720px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
     }
 }
