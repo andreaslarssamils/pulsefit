@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart — PulseFit{% endblock %}
+
+{% block content %}
+<section class="container detail">
+    <header class="catalog-header">
+        <p class="eyebrow">Cart</p>
+        <h1>Your Cart</h1>
+    </header>
+
+    {% if cart_items %}
+        <div class="cart-list">
+            {% for item in cart_items %}
+            <div class="card cart-row">
+                <div class="cart-row__info">
+                    <span class="card-title">
+                        {% if item.item_type == "plan" %}{{ item.object.title }}{% else %}{{ item.object.name }}{% endif %}
+                    </span>
+                    <span class="text-muted">${{ item.object.price }} each</span>
+                </div>
+
+                <form method="post" action="{% url 'cart:update' item.item_type item.object.id %}" class="cart-row__qty">
+                    {% csrf_token %}
+                    <input type="number" name="qty" value="{{ item.qty }}" min="1">
+                    <button type="submit" class="btn btn-outline">Update</button>
+                </form>
+
+                <span class="price">${{ item.line_total }}</span>
+
+                <form method="post" action="{% url 'cart:remove' item.item_type item.object.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline">Remove</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <span class="price price--lg">Total: ${{ cart_total }}</span>
+            <form method="post" action="{% url 'orders:checkout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Proceed to Checkout</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <span class="empty-state__icon" aria-hidden="true"></span>
+            <p class="empty-state__title">Your cart is empty</p>
+            <p class="text-muted">Browse <a href="{% url 'plans:list' %}">plans</a> or the <a href="{% url 'products:list' %}">shop</a> to get started.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
