@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmed — PulseFit{% endblock %}
+
+{% block content %}
+<section class="container detail">
+    <div class="auth-card" style="max-width: 560px; margin-inline: auto;">
+        {% if order %}
+            <h1>Thanks for your order!</h1>
+            <p class="text-muted">Order {{ order.order_number }} is confirmed. A receipt has been sent to your email.</p>
+            <ul>
+                {% for item in order.items.all %}
+                <li>{{ item.quantity }} &times; {{ item.name }} — ${{ item.line_total }}</li>
+                {% endfor %}
+            </ul>
+            <p class="price price--lg">Total: ${{ order.total }}</p>
+        {% else %}
+            <h1>Thanks for your purchase!</h1>
+            <p class="text-muted">We're confirming your payment now — check your email shortly for your order confirmation.</p>
+        {% endif %}
+        <a class="btn btn-primary btn-block" href="{% url 'plans:list' %}">Continue browsing</a>
+    </div>
+</section>
+{% endblock %}
