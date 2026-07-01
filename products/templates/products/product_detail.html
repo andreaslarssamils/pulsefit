@@ -26,8 +26,11 @@
             </p>
             <p>{{ product.description }}</p>
 
-            {# Inert in Sprint 2 — wired to the session cart in Sprint 3; disabled when out of stock (US-08). #}
-            <button type="button" class="btn btn-primary btn-block" data-add-to-cart{% if not product.in_stock %} disabled{% endif %}>Add to Cart</button>
+            {# Adds to the session cart; disabled when out of stock (US-08). #}
+            <form method="post" action="{% url 'cart:add' 'product' product.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-block"{% if not product.in_stock %} disabled{% endif %}>Add to Cart</button>
+            </form>
         </div>
     </div>
 </section>

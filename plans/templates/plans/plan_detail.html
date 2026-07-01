@@ -23,8 +23,11 @@
                 {# Static upsell in Sprint 2 — gating + pricing page land in Sprint 4. #}
                 <button type="button" class="btn btn-primary btn-block" data-go-premium>Go Premium</button>
             {% else %}
-                {# Inert in Sprint 2 — wired to the session cart in Sprint 3. #}
-                <button type="button" class="btn btn-primary btn-block" data-add-to-cart>Add to Cart</button>
+                {# Adds to the session cart. #}
+                <form method="post" action="{% url 'cart:add' 'plan' plan.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-block">Add to Cart</button>
+                </form>
             {% endif %}
         </div>
     </div>
