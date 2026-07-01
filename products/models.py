@@ -30,6 +30,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
+    # Digital products (downloads) skip shipping-address collection at checkout.
+    is_digital = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["name"]
