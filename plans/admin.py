@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Plan, PlanCategory
+from .models import Plan, PlanAccess, PlanCategory
 
 
 @admin.register(PlanCategory)
@@ -17,3 +17,10 @@ class PlanAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     list_editable = ("is_active",)
     prepopulated_fields = {"slug": ("title",)}
+
+
+@admin.register(PlanAccess)
+class PlanAccessAdmin(admin.ModelAdmin):
+    list_display = ("user", "plan", "source", "created_at")
+    list_filter = ("source",)
+    search_fields = ("user__email", "plan__title")

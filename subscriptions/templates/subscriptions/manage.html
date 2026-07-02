@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My subscription — PulseFit{% endblock %}
+{% block content %}
+<section class="container detail">
+    <h1>My subscription</h1>
+    {% if subscription %}
+        <p>Tier: <strong>{{ subscription.plan_tier }}</strong></p>
+        <p>Status: <strong>{{ subscription.status }}</strong></p>
+        {% if subscription.cancel_at_period_end %}
+            <p class="text-muted">Cancels on {{ subscription.current_period_end|date:"F j, Y" }}.</p>
+        {% else %}
+            <p class="text-muted">Renews on {{ subscription.current_period_end|date:"F j, Y" }}.</p>
+            {% if subscription.is_active %}
+                <form method="post" action="{% url 'subscriptions:cancel' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline">Cancel subscription</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p>You don't have a subscription yet.</p>
+        <a class="btn btn-primary" href="{% url 'subscriptions:pricing' %}">See Pricing</a>
+    {% endif %}
+</section>
+{% endblock %}

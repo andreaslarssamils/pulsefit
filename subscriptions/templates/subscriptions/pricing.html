@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Pricing — PulseFit{% endblock %}
+{% block content %}
+<section class="container detail">
+    <h1>Pricing</h1>
+    <div class="detail-layout">
+        <div class="card">
+            <p class="eyebrow">Free</p>
+            <p class="price price--lg">$0</p>
+            <p>Browse plans and shop. Buy individual plans one-time.</p>
+        </div>
+        <div class="card">
+            <p class="eyebrow">Premium</p>
+            <p class="price price--lg">$19<span>/mo</span></p>
+            <p>Unlock every premium plan while your subscription is active.</p>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'subscriptions:subscribe' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-block">Go Premium</button>
+                </form>
+            {% else %}
+                <a class="btn btn-primary btn-block" href="/accounts/login/?next={% url 'subscriptions:pricing' %}">Go Premium</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

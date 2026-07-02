@@ -26,7 +26,7 @@
                     <li><a href="#">Community</a></li>
                     <li><a href="{% url 'plans:list' %}"{% if request.resolver_match.app_name == 'plans' %} class="is-active"{% endif %}>Plans</a></li>
                     <li><a href="{% url 'products:list' %}"{% if request.resolver_match.app_name == 'products' %} class="is-active"{% endif %}>Shop</a></li>
-                    <li><a href="#">Pricing</a></li>
+                    <li><a href="{% url 'subscriptions:pricing' %}">Pricing</a></li>
                 </ul>
             </nav>
 
@@ -37,6 +37,8 @@
                 </a>
                 {% if user.is_authenticated %}
                     <a class="avatar" href="#" title="{{ user.email }}">{{ user.email|first|upper }}</a>
+                    {% if is_premium %}<span class="badge badge--premium">Premium</span>{% endif %}
+                    <a class="avatar" href="{% url 'subscriptions:manage' %}" title="{{ user.email }}">{{ user.email|first|upper }}</a>
                     <a class="btn btn-outline" href="/accounts/logout/">Sign out</a>
                 {% else %}
                     <a href="/accounts/login/">Sign In</a>
@@ -73,7 +75,7 @@
                 <ul>
                     <li><a href="{% url 'plans:list' %}">Plans</a></li>
                     <li><a href="{% url 'products:list' %}">Shop</a></li>
-                    <li><a href="#">Pricing</a></li>
+                    <li><a href="{% url 'subscriptions:pricing' %}">Pricing</a></li>
                 </ul>
             </div>
             <div>

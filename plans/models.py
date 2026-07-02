@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -51,3 +52,27 @@ class Plan(models.Model):
 
     def get_absolute_url(self):
         return reverse("plans:detail", kwargs={"slug": self.slug})
+
+
+class PlanAccess(models.Model):
+    SOURCE_CHOICES = [("subscription", "Subscription"), ("purchase", "Purchase")]
+
+    user = models.ForeignKey(
+        settings. AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name="plan_accesses",
+    )
+    plan = models.ForeignKey(
+        Plan, on_delete=models.CASCADE, related_name="access_grants"
+    )
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES)
+    order = models.ForeignKey(
+        "orders.Order", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "plan")]
+
+    def __str__(self):
+        return f"{self.user} → {self.plan} ({self.source})"
+
