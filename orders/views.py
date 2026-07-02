@@ -4,8 +4,10 @@ from decimal import Decimal
 
 import stripe
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.http import HttpResponse
@@ -28,8 +30,13 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@require_POST
 def checkout_view(request):
+    """Handle the checkout process."""
+    if request.method != "POST":
+        messages.info(
+            request, "You're signed in — review your cart and continue to checkout."
+        )
+        return redirect("cart:detail")
     cart = Cart(request)
     items = cart.items()
     if not items:
@@ -128,39 +135,40 @@ def _handle_checkout_completed(session):
     shipping = session.get("shipping_details") or {}
     address = shipping.get("address") or {}
 
-    order = Order.objects.create(
-        user=user,
-        order_number=Order.generate_order_number(),
-        status="paid",
-        total=Decimal(session["amount_total"]) / 100,
-        stripe_checkout_session_id=session["id"],
-        shipping_name=shipping.get("name") or "",
-        shipping_address_line1=address.get("line1") or "",
-        shipping_address_line2=address.get("line2") or "",
-        shipping_city=address.get("city") or "",
-        shipping_postal_code=address.get("postal_code") or "",
-        shipping_country=address.get("country") or "",
-    )
+    with transaction.atomic():
+        order = Order.objects.create(
+            user=user,
+            order_number=Order.generate_order_number(),
+            status="paid",
+            total=(Decimal(session["amount_total"]) / 100).quantize(Decimal("0.01")),
+            stripe_checkout_session_id=session["id"],
+            shipping_name=shipping.get("name") or "",
+            shipping_address_line1=address.get("line1") or "",
+            shipping_address_line2=address.get("line2") or "",
+            shipping_city=address.get("city") or "",
+            shipping_postal_code=address.get("postal_code") or "",
+            shipping_country=address.get("country") or "",
+        )
 
-    for entry in cart_snapshot:
-        item_kwargs = {
-            "order": order,
-            "name": entry["name"],
-            "unit_price": Decimal(entry["price"]),
-            "quantity": entry["q"],
-        }
-        if entry["t"] == "plan":
-            item_kwargs["plan_id"] = entry["id"]
-            PlanAccess.objects.get_or_create(
-                user=user,
-                plan_id=entry["id"],
-                defaults={"source": "purchase", "order": order},
-            )
-        else:
-            item_kwargs["product_id"] = entry["id"]
-            Product.objects.filter(pk=entry["id"]).update(
-                stock=Greatest(F("stock") - entry["q"], 0)
-            )
-        OrderItem.objects.create(**item_kwargs)
+        for entry in cart_snapshot:
+            item_kwargs = {
+                "order": order,
+                "name": entry["name"],
+                "unit_price": Decimal(entry["price"]),
+                "quantity": entry["q"],
+            }
+            if entry["t"] == "plan":
+                item_kwargs["plan_id"] = entry["id"]
+                PlanAccess.objects.get_or_create(
+                    user=user,
+                    plan_id=entry["id"],
+                    defaults={"source": "purchase", "order": order},
+                )
+            else:
+                item_kwargs["product_id"] = entry["id"]
+                Product.objects.filter(pk=entry["id"]).update(
+                    stock=Greatest(F("stock") - entry["q"], 0)
+                )
+            OrderItem.objects.create(**item_kwargs)
 
     send_order_confirmation_email(order)

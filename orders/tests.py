@@ -124,6 +124,15 @@ class CheckoutViewTests(TestCase):
         resp = self.client.post(reverse("orders:checkout"))
         self.assertRedirects(resp, reverse("cart:detail"))
 
+    def test_checkout_get_redirects_to_cart(self):
+        self.client.force_login(self.user)
+        product = make_product()
+        self.client.post(reverse("cart:add", args=["product", product.id]))
+
+        resp = self.client.get(reverse("orders:checkout"))
+
+        self.assertRedirects(resp, reverse("cart:detail"))
+
     @patch("orders.views.stripe.checkout.Session.create")
     def test_checkout_creates_session_and_redirects_to_stripe(self, mock_create):
         mock_create.return_value = MagicMock(url="https://checkout.stripe.com/test-session")

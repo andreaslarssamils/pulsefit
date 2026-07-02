@@ -10,4 +10,5 @@ def send_order_confirmation_email(order):
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[order.user.email],
+        fail_silently=True,
     )

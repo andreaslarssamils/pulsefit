@@ -85,6 +85,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "cart.context_processors.cart_item_count",
+                "subscriptions.context_processors.subscription_status",
             ],
         },
     },
@@ -182,6 +183,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STRIPE_PUBLISHABLE_KEY = env.str("STRIPE_PUBLISHABLE_KEY", default="")
 STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = env.str("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_SUBSCRIPTION_WEBHOOK_SECRET = env.str(
+    "STRIPE_SUBSCRIPTION_WEBHOOK_SECRET", default=""
+)
+STRIPE_PREMIUM_PRICE_ID = env.str("STRIPE_PREMIUM_PRICE_ID", default="")
 
 # Email (US-12). Defaults to printing to the console in dev.
 EMAIL_BACKEND = env.str(
