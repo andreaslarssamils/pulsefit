@@ -19,11 +19,12 @@
             <p class="price price--lg">${{ plan.price }}</p>
             <p>{{ plan.description }}</p>
 
-            {% if plan.premium_only %}
-                {# Static upsell in Sprint 2 — gating + pricing page land in Sprint 4. #}
-                <button type="button" class="btn btn-primary btn-block" data-go-premium>Go Premium</button>
+            {% if has_access %}
+                <a class="btn btn-primary btn-block" href="#">Access Content</a>
+            {% elif plan.premium_only %}
+                <p class="text-muted">Premium members unlock this plan.</p>
+                <a class="btn btn-primary btn-block" href="{% url 'subscriptions:pricing' %}">Go Premium</a>
             {% else %}
-                {# Adds to the session cart. #}
                 <form method="post" action="{% url 'cart:add' 'plan' plan.id %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary btn-block">Add to Cart</button>

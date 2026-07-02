@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from cart.cart import Cart
+from plans.models import PlanAccess
 from products.models import Product
 
 from .emails import send_order_confirmation_email
@@ -40,21 +41,25 @@ def checkout_view(request):
     for entry in items:
         obj = entry["object"]
         name = obj.title if entry["item_type"] == "plan" else obj.name
-        line_items.append({
-            "price_data": {
-                "currency": "usd",
-                "product_data": {"name": name},
-                "unit_amount": int(obj.price * 100),
-            },
-            "quantity": entry["qty"],
-        })
-        cart_snapshot.append({
-            "t": entry["item_type"],
-            "id": obj.id,
-            "q": entry["qty"],
-            "name": name,
-            "price": str(obj.price),
-        })
+        line_items.append(
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {"name": name},
+                    "unit_amount": int(obj.price * 100),
+                },
+                "quantity": entry["qty"],
+            }
+        )
+        cart_snapshot.append(
+            {
+                "t": entry["item_type"],
+                "id": obj.id,
+                "q": entry["qty"],
+                "name": name,
+                "price": str(obj.price),
+            }
+        )
         if entry["item_type"] == "product" and not obj.is_digital:
             needs_shipping = True
 
@@ -103,14 +108,19 @@ def stripe_webhook(request):
         return HttpResponse(status=400)
 
     if event["type"] == "checkout.session.completed":
-        _handle_checkout_completed(event["data"]["object"])
+        session = event["data"]["object"]
+        if session.get("mode") == "payment":
+            _handle_checkout_completed(session)
+        # subscription-mode completions are handled by the subscriptions webhook
 
     return HttpResponse(status=200)
 
 
 def _handle_checkout_completed(session):
     if Order.objects.filter(stripe_checkout_session_id=session["id"]).exists():
-        logger.info("Duplicate webhook delivery for session %s, skipping", session["id"])
+        logger.info(
+            "Duplicate webhook delivery for session %s, skipping", session["id"]
+        )
         return  # Stripe may deliver the same event more than once.
 
     user = get_object_or_404(User, pk=session["client_reference_id"])
@@ -141,6 +151,11 @@ def _handle_checkout_completed(session):
         }
         if entry["t"] == "plan":
             item_kwargs["plan_id"] = entry["id"]
+            PlanAccess.objects.get_or_create(
+                user=user,
+                plan_id=entry["id"],
+                defaults={"source": "purchase", "order": order},
+            )
         else:
             item_kwargs["product_id"] = entry["id"]
             Product.objects.filter(pk=entry["id"]).update(

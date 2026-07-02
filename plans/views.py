@@ -1,5 +1,6 @@
 from django.views.generic import DetailView, ListView
 
+from .access import has_plan_access
 from .models import Plan, PlanCategory
 
 
@@ -24,3 +25,8 @@ class PlanDetailView(DetailView):
     template_name = "plans/plan_detail.html"
     context_object_name = "plan"
     queryset = Plan.objects.filter(is_active=True).select_related("category")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["has_access"] = has_plan_access(self.request.user, self.object)
+        return context
