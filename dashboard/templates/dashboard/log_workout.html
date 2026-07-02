@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Log a workout — PulseFit{% endblock %}
+{% block meta_description %}Log a completed workout and track your weekly progress.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-shell">
+        <a class="back-link" href="{% url 'dashboard:home' %}">&larr; Back to dashboard</a>
+
+        <div class="auth-card">
+            <h1>Log a workout</h1>
+            <p class="text-muted">Every session counts toward your weekly goal.</p>
+
+            <form method="post" action="{% url 'dashboard:log_workout' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-field">
+                    <label for="{{ form.plan.id_for_label }}">{{ form.plan.label }}</label>
+                    {{ form.plan }}
+                    {% if form.plan.errors %}<div class="field-error">{{ form.plan.errors }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+                    {{ form.date }}
+                    {% if form.date.errors %}<div class="field-error">{{ form.date.errors }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    <label for="{{ form.duration_minutes.id_for_label }}">{{ form.duration_minutes.label }}</label>
+                    {{ form.duration_minutes }}
+                    {% if form.duration_minutes.errors %}<div class="field-error">{{ form.duration_minutes.errors }}</div>{% endif %}
+                </div>
+
+                <button class="btn btn-primary btn-block" type="submit" style="margin-top: var(--space-base);">
+                    Log Workout
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

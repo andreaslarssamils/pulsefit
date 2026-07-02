@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Set weekly goal — PulseFit{% endblock %}
+{% block meta_description %}Set your weekly workout target.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-shell">
+        <a class="back-link" href="{% url 'dashboard:home' %}">&larr; Back to dashboard</a>
+
+        <div class="auth-card">
+            <h1>Set your weekly goal</h1>
+            <p class="text-muted">How many workouts do you want to complete each week?</p>
+
+            <form method="post" action="{% url 'dashboard:set_goal' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-field">
+                    <label for="{{ form.weekly_workouts_target.id_for_label }}">{{ form.weekly_workouts_target.label }}</label>
+                    {{ form.weekly_workouts_target }}
+                    {% if form.weekly_workouts_target.errors %}<div class="field-error">{{ form.weekly_workouts_target.errors }}</div>{% endif %}
+                </div>
+
+                <button class="btn btn-primary btn-block" type="submit" style="margin-top: var(--space-base);">
+                    Save Goal
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

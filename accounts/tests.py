@@ -6,7 +6,11 @@ User = get_user_model()
 
 SIMPLE_STATIC_STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    "staticfiles":
+        {
+            "BACKEND":
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
 }
 
 
@@ -17,7 +21,10 @@ class CustomUserModelTests(TestCase):
 
     def test_create_user_with_email(self):
         """Test creating a regular user with an email address."""
-        user = User.objects.create_user(email="a@example.com", password="pw12345!")
+        user = User.objects.create_user(
+            email="a@example.com",
+            password="pw12345!"
+        )
         self.assertEqual(user.email, "a@example.com")
         self.assertTrue(user.check_password("pw12345!"))
         self.assertFalse(user.is_staff)
@@ -39,9 +46,14 @@ class CustomUserModelTests(TestCase):
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
 class AuthFlowTests(TestCase):
-    """Tests for the authentication flow, including signup, login, and logout."""
+    """
+    Tests for the authentication flow,
+    including signup, login, and logout.
+    """
     def test_signup_creates_user_logs_in_and_maps_full_name(self):
-        """Test that signing up creates a user, logs them in, and maps the full name to first and last names."""
+        """Test that signing up creates a user, logs them in,
+        and maps the full name to first and last names.
+        """
         resp = self.client.post(
             reverse("account_signup"),
             {
@@ -51,7 +63,7 @@ class AuthFlowTests(TestCase):
                 "password2": "SuperSecret123!",
             },
         )
-        self.assertEqual(resp.status_code, 302)  # auto sign-in -> redirect (US-01)
+        self.assertRedirects(resp, "/dashboard/")
 
         user = User.objects.get(email="new@example.com")
         self.assertEqual(user.first_name, "Andreas")
@@ -59,21 +71,35 @@ class AuthFlowTests(TestCase):
         self.assertIn("_auth_user_id", self.client.session)  # signed in
 
     def test_login_with_wrong_password_shows_non_specific_error(self):
-        """Test that logging in with the wrong password does not reveal whether the email exists."""
-        User.objects.create_user(email="u@example.com", password="rightpass123!")
+        """
+            Test that logging in with the wrong
+            password does not reveal
+            whether the email exists.
+        """
+        User.objects.create_user(
+            email="u@example.com",
+            password="rightpass123!"
+        )
         resp = self.client.post(
             reverse("account_login"),
             {"login": "u@example.com", "password": "wrongpass"},
         )
-        # Re-renders the form (200) instead of redirecting; user stays anonymous.
+        # Re-renders the form (200) instead of
+        # redirecting; user stays anonymous.
         self.assertEqual(resp.status_code, 200)
         self.assertNotIn("_auth_user_id", self.client.session)
-        # US-02: the error must not reveal whether the email exists.
+        # The error must not reveal whether the email exists.
         self.assertContains(resp, "are not correct")
 
     def test_signup_with_duplicate_email_is_rejected(self):
-        """Test that signing up with an email that already exists is rejected."""
-        User.objects.create_user(email="taken@example.com", password="RightPass123!")
+        """
+        Test that signing up with an email
+        that already exists is rejected.
+        """
+        User.objects.create_user(
+            email="taken@example.com",
+            password="RightPass123!"
+        )
         resp = self.client.post(
             reverse("account_signup"),
             {
@@ -83,19 +109,26 @@ class AuthFlowTests(TestCase):
                 "password2": "AnotherPass123!",
             },
         )
-        # US-01: duplicate email re-renders with an error; no second user created.
+        # Duplicate email re-renders with an error;
+        # no second user created.
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(User.objects.filter(email="taken@example.com").count(), 1)
         self.assertNotIn("_auth_user_id", self.client.session)
 
-    def test_login_success_redirects(self):
-        """Test that logging in with correct credentials redirects and logs the user in."""
-        User.objects.create_user(email="ok@example.com", password="rightpass123!")
+    def test_login_success_redirects_to_dashboard(self):
+        """
+        Test that logging in with correct
+        credentials redirects and logs the user in.
+        """
+        User.objects.create_user(
+            email="ok@example.com",
+            password="rightpass123!"
+        )
         resp = self.client.post(
             reverse("account_login"),
             {"login": "ok@example.com", "password": "rightpass123!"},
         )
-        self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, "/dashboard/")
         self.assertIn("_auth_user_id", self.client.session)
 
     def test_logout_redirects(self):
@@ -112,5 +145,8 @@ class AuthFlowTests(TestCase):
 class StripeCustomerFieldTests(TestCase):
     """Tests for the stripe_customer_id field in the CustomUser model."""
     def test_new_user_has_blank_stripe_customer_id(self):
-        user = User.objects.create_user(email="s@example.com", password="pw12345!")
+        user = User.objects.create_user(
+            email="s@example.com",
+            password="pw12345!"
+        )
         self.assertEqual(user.stripe_customer_id, "")

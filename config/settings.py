@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     "orders",
     "cart",
     "subscriptions",
+    "dashboard",
+    "community",
 ]
 
 MIDDLEWARE = [
@@ -109,7 +111,7 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 # "Full Name" -> first_name / last_name mapping for signup (US-01).
 ACCOUNT_SIGNUP_FORM_CLASS = "accounts.forms.CustomSignupForm"
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/dashboard/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 # Database

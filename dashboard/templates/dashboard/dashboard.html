@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — PulseFit{% endblock %}
+{% block meta_description %}Your personal PulseFit dashboard — workouts, goals and progress.{% endblock %}
+
+{% block content %}
+<section class="container dashboard">
+    <header class="dashboard-header">
+        <h1 class="display">Welcome back, {% firstof user.first_name user.email %}!</h1>
+        <a class="badge{% if is_premium %} badge--premium{% endif %}" href="{% url 'subscriptions:manage' %}">
+            {% if is_premium %}Premium{% else %}Free{% endif %}
+        </a>
+    </header>
+
+    <div class="stat-grid">
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ week.workouts }}</div>
+            <div class="stat-tile__label">Workouts this week</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ total_minutes }}</div>
+            <div class="stat-tile__label">Total minutes</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ streak }}</div>
+            <div class="stat-tile__label">Day streak</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ week.completion }}%</div>
+            <div class="stat-tile__label">Goal completion</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-main">
+            <div class="card">
+                <h3>Weekly Progress</h3>
+                {% if week.target %}
+                <div class="progress-row">
+                    <span>Workouts</span>
+                    <span class="text-muted">{{ week.workouts }} / {{ week.target }}</span>
+                </div>
+                <div class="progress" role="progressbar" aria-label="Workouts toward weekly goal"
+                     aria-valuenow="{{ week.workouts }}" aria-valuemin="0" aria-valuemax="{{ week.target }}">
+                    <div class="progress__bar" style="width: {{ week.completion }}%;"></div>
+                </div>
+                <div class="progress-row">
+                    <span>Minutes this week</span>
+                    <span class="text-muted">{{ week.minutes }} mins</span>
+                </div>
+                {% else %}
+                <p class="text-muted">No goal yet — decide how many workouts your week should hold.</p>
+                <a href="{% url 'dashboard:set_goal' %}">Set your weekly goal &rarr;</a>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>Today's Plan</h3>
+                {% if todays_plan %}
+                <p class="eyebrow">{{ todays_plan.category.name }}</p>
+                <h4 class="card-title"><a href="{{ todays_plan.get_absolute_url }}">{{ todays_plan.title }}</a></h4>
+                <p class="text-muted">The plan from your latest logged workout.</p>
+                <a class="btn btn-primary" href="{% url 'dashboard:log_workout' %}">Log today's workout</a>
+                {% else %}
+                <div class="empty-state empty-state--inset">
+                    <span class="empty-state__icon" aria-hidden="true"></span>
+                    <p class="empty-state__title">No workout scheduled</p>
+                    <p class="text-muted">Pick a plan and make it yours.</p>
+                    <a class="btn btn-primary" href="{% url 'plans:list' %}">Browse Plans &rarr;</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <aside class="dashboard-aside">
+            {% if not is_premium %}
+            <div class="card upsell-card">
+                <h3>Upgrade to Premium</h3>
+                <p class="text-muted">Unlock every premium plan and train without limits.</p>
+                <a class="btn btn-primary btn-block" href="{% url 'subscriptions:pricing' %}">Go Premium</a>
+            </div>
+            {% endif %}
+
+            <div class="card">
+                <h3>Quick Actions</h3>
+                <ul class="quick-actions">
+                    <li><a href="{% url 'dashboard:log_workout' %}">Log a workout</a></li>
+                    <li><a href="{% url 'dashboard:set_goal' %}">Set weekly goal</a></li>
+                    <li><a href="{% url 'plans:list' %}">Browse plans</a></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Community</h3>
+                <p class="text-muted">See what members are sharing right now.</p>
+                <a class="btn btn-outline btn-block" href="{% url 'community:feed' %}">View Feed</a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}
