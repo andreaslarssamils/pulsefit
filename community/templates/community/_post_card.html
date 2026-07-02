@@ -1,0 +1,16 @@
+<article class="post-card">
+    <div class="post-card__meta">
+        <span class="avatar">{{ post.user.email|first|upper }}</span>
+        <div>
+            <strong>{{ post.user.get_full_name|default:post.user.email }}</strong>
+            <time class="post-card__time text-muted" datetime="{{ post.created_at|date:'c' }}">
+                {{ post.created_at|date:"M j, Y, H:i" }}
+            </time>
+        </div>
+        {% if post.user == user and not hide_actions %}
+        <a class="post-card__delete text-muted"
+           href="{% url 'community:post_delete' post.pk %}">Delete</a>
+        {% endif %}
+    </div>
+    <p class="post-card__body">{{ post.body|linebreaksbr }}</p>
+</article>

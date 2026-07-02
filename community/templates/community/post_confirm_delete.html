@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Delete post — PulseFit{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-shell">
+        <a class="back-link" href="{% url 'community:feed' %}">&larr; Back to feed</a>
+
+        <div class="auth-card">
+            <h1>Delete this post?</h1>
+            <p class="text-muted">This can't be undone.</p>
+
+            {% include "community/_post_card.html" with post=post hide_actions=True %}
+
+            <form method="post" style="margin-top: var(--space-lg);">
+                {% csrf_token %}
+                <button class="btn btn-primary btn-block" type="submit">Delete Post</button>
+            </form>
+            <p style="text-align:center; margin: var(--space-base) 0 0;">
+                <a href="{% url 'community:feed' %}">Keep it</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

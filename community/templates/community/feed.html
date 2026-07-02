@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Community Feed — PulseFit{% endblock %}
+{% block meta_description %}See what PulseFit members are sharing — progress, tips and questions.{% endblock %}
+
+{% block content %}
+<section class="container feed">
+    <header class="catalog-header">
+        <h1 class="display">Community Feed</h1>
+        <p class="text-muted">Progress, tips and questions from PulseFit members.</p>
+    </header>
+
+    <div class="stat-grid">
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ stats.members }}</div>
+            <div class="stat-tile__label">Members</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ stats.posts }}</div>
+            <div class="stat-tile__label">Posts</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ stats.new_this_week }}</div>
+            <div class="stat-tile__label">New this week</div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="composer card">
+        <form method="post" action="{% url 'community:post_create' %}">
+            {% csrf_token %}
+            <div class="composer__row">
+                <span class="avatar">{{ user.email|first|upper }}</span>
+                {{ form.body }}
+            </div>
+            {% if form.body.errors %}<div class="field-error">{{ form.body.errors }}</div>{% endif %}
+            <div class="composer__actions">
+                <button class="btn btn-primary" type="submit">&#10148; Share</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="cta-card">
+        <p>Join the PulseFit community — share your progress, tips and questions.</p>
+        <a class="btn btn-primary" href="/accounts/signup/">Join Free</a>
+    </div>
+    {% endif %}
+
+    <div class="feed-list">
+        {% for post in posts %}
+            {% include "community/_post_card.html" with post=post %}
+        {% empty %}
+        <div class="empty-state">
+            <span class="empty-state__icon" aria-hidden="true"></span>
+            <p class="empty-state__title">No posts yet</p>
+            <p class="text-muted">Be the first to share your progress.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
