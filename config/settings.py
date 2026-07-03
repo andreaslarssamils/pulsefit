@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "subscriptions",
     "dashboard",
     "community",
+    "blog",
 ]
 
 MIDDLEWARE = [

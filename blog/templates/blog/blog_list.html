@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Blog — PulseFit{% endblock %}
+{% block meta_description %}Training tips, nutrition guidance and fitness news from the PulseFit coaching team.{% endblock %}
+
+{% block content %}
+<section class="container catalog">
+    <header class="catalog-header">
+        <p class="eyebrow">PulseFit Journal</p>
+        <h1>Blog</h1>
+        <p class="text-muted">Training tips, nutrition and fitness news from our coaches.</p>
+    </header>
+
+    {% if posts %}
+    <div class="catalog-grid">
+        {% for post in posts %}
+        <a class="catalog-card" href="{{ post.get_absolute_url }}">
+            <span class="card-media">
+                {% if post.image %}<img src="{{ post.image }}" alt="{{ post.title }}">{% endif %}
+            </span>
+            <span class="card-body">
+                <span class="eyebrow">{{ post.published_at|date:"M j, Y" }}</span>
+                <span class="card-title">{{ post.title }}</span>
+                {% if post.excerpt %}<span class="text-muted">{{ post.excerpt }}</span>{% endif %}
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-state__icon" aria-hidden="true"></span>
+        <p class="empty-state__title">No posts yet</p>
+        <p class="text-muted">Check back soon for training tips and fitness news.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
