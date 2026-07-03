@@ -28,6 +28,7 @@ urlpatterns = [
     path("dashboard/", include("dashboard.urls")),
     path("community/", include("community.urls")),
     path("blog/", include("blog.urls")),
+    path("reviews/", include("reviews.urls")),
     path("", include("subscriptions.urls")),
     path("", include("pages.urls", namespace="pages")),
 ]

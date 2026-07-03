@@ -995,3 +995,120 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ----- Blog article ----- */
+.blog-detail {
+    max-width: 760px;
+}
+
+.blog-detail__meta {
+    margin-top: var(--space-sm);
+}
+
+.blog-detail__media {
+    aspect-ratio: 16 / 9;
+    margin: var(--space-lg) 0;
+}
+
+.blog-detail__body {
+    margin-top: var(--space-lg);
+}
+
+.blog-detail__body p {
+    margin-bottom: var(--space-base);
+}
+
+/* ----- Reviews ----- */
+.reviews {
+    margin-top: var(--space-2xl);
+    max-width: 760px;
+}
+
+.reviews__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-base);
+    margin-bottom: var(--space-lg);
+}
+
+.reviews__avg {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--orange-300);
+    white-space: nowrap;
+}
+
+.review-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.review-form__label {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-2);
+}
+
+.review-form .btn {
+    align-self: flex-start;
+    margin-top: var(--space-sm);
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+    list-style: none;
+}
+
+.review {
+    padding: var(--space-lg);
+}
+
+.review__head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-base);
+    margin-bottom: var(--space-sm);
+}
+
+.review__author {
+    font-weight: 600;
+    color: var(--text-1);
+}
+
+.review__stars {
+    color: var(--orange-300);
+    white-space: nowrap;
+}
+
+.review__date {
+    font-size: 13px;
+    margin-top: var(--space-xs);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--text-2);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    color: var(--danger);
+}
+
+.review__delete {
+    margin-top: var(--space-sm);
+    font-size: 13px;
+}

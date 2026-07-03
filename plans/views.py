@@ -1,5 +1,7 @@
 from django.views.generic import DetailView, ListView
 
+from reviews.context import review_context
+
 from .access import has_plan_access
 from .models import Plan, PlanCategory
 
@@ -29,4 +31,5 @@ class PlanDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["has_access"] = has_plan_access(self.request.user, self.object)
+        context.update(review_context(self.request.user, plan=self.object))
         return context

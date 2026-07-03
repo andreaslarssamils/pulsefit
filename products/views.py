@@ -1,5 +1,7 @@
 from django.views.generic import DetailView, ListView
 
+from reviews.context import review_context
+
 from .models import Product, ProductCategory
 
 
@@ -24,3 +26,8 @@ class ProductDetailView(DetailView):
     template_name = "products/product_detail.html"
     context_object_name = "product"
     queryset = Product.objects.filter(is_active=True).select_related("category")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(review_context(self.request.user, product=self.object))
+        return context

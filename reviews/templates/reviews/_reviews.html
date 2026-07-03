@@ -1,0 +1,50 @@
+<section class="reviews" id="reviews" aria-label="Reviews">
+    <div class="reviews__head">
+        <h2>Reviews</h2>
+        {% if review_count %}
+        <p class="reviews__avg">★ {{ avg_rating|floatformat:1 }}
+            <span class="text-muted">({{ review_count }})</span></p>
+        {% endif %}
+    </div>
+
+    {% if can_review %}
+    <form class="review-form card" method="post"
+          action="{% url 'reviews:add' review_target_type review_target_id %}">
+        {% csrf_token %}
+        <label class="review-form__label" for="{{ review_form.rating.id_for_label }}">Your rating</label>
+        {{ review_form.rating }}
+        <label class="review-form__label" for="{{ review_form.body.id_for_label }}">Your review</label>
+        {{ review_form.body }}
+        <button type="submit" class="btn btn-primary">
+            {% if user_review %}Update review{% else %}Post review{% endif %}
+        </button>
+    </form>
+    {% elif user.is_authenticated %}
+    <p class="text-muted reviews__note">Purchase or unlock this item to leave a review.</p>
+    {% else %}
+    <p class="text-muted reviews__note"><a href="/accounts/login/">Sign in</a> to leave a review.</p>
+    {% endif %}
+
+    {% if reviews %}
+    <ul class="review-list">
+        {% for review in reviews %}
+        <li class="review card">
+            <div class="review__head">
+                <span class="review__author">{{ review.user.get_full_name|default:review.user.email }}</span>
+                <span class="review__stars" aria-label="{{ review.rating }} out of 5 stars">{{ review.rating }}★</span>
+            </div>
+            <p class="review__body">{{ review.body|linebreaks }}</p>
+            <p class="review__date text-muted">{{ review.created_at|date:"M j, Y" }}</p>
+            {% if review.user == user %}
+            <form method="post" action="{% url 'reviews:delete' review.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-link review__delete">Remove my review</button>
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted reviews__empty">No reviews yet — be the first.</p>
+    {% endif %}
+</section>

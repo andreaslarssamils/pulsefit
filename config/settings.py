@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "dashboard",
     "community",
     "blog",
+    "reviews",
 ]
 
 MIDDLEWARE = [
