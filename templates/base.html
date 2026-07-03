@@ -24,6 +24,7 @@
             <nav>
                 <ul class="nav-links">
                     <li><a href="{% url 'community:feed' %}"{% if request.resolver_match.app_name == 'community' %} class="is-active"{% endif %}>Community</a></li>
+                    <li><a href="{% url 'blog:list' %}"{% if request.resolver_match.app_name == 'blog' %} class="is-active"{% endif %}>Blog</a></li>
                     <li><a href="{% url 'plans:list' %}"{% if request.resolver_match.app_name == 'plans' %} class="is-active"{% endif %}>Plans</a></li>
                     <li><a href="{% url 'products:list' %}"{% if request.resolver_match.app_name == 'products' %} class="is-active"{% endif %}>Shop</a></li>
                     <li><a href="{% url 'subscriptions:pricing' %}">Pricing</a></li>
@@ -81,7 +82,7 @@
                 <h4>Community</h4>
                 <ul>
                     <li><a href="{% url 'community:feed' %}">Feed</a></li>
-                    <li><a href="#">Blog</a></li>
+                    <li><a href="{% url 'blog:list' %}">Blog</a></li>
                     <li><a href="#">Challenges</a></li>
                 </ul>
             </div>
