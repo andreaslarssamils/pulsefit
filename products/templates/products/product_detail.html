@@ -2,6 +2,8 @@
 
 {% block title %}{{ product.name }} — PulseFit{% endblock %}
 {% block meta_description %}{{ product.description|striptags|truncatewords:25 }}{% endblock %}
+{% block og_title %}{{ product.name }} — PulseFit{% endblock %}
+{% block og_description %}{{ product.description|striptags|truncatewords:25 }}{% endblock %}
 
 {% block content %}
 <section class="container detail">

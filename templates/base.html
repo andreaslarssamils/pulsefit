@@ -7,6 +7,13 @@
     <title>{% block title %}PulseFit{% endblock %}</title>
     <meta name="description"
           content="{% block meta_description %}PulseFit — premium training plans and a fitness shop, built around your pulse.{% endblock %}">
+    <meta property="og:site_name" content="PulseFit">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title"
+          content="{% block og_title %}PulseFit — premium training plans &amp; fitness shop{% endblock %}">
+    <meta property="og:description"
+          content="{% block og_description %}Premium training plans and a fitness shop, built around your pulse.{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
