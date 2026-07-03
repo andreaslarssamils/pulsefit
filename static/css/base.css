@@ -791,3 +791,207 @@ select:focus {
     font-weight: 700;
     line-height: 1;
 }
+
+/* ======================= Dashboard & Community ======================= */
+
+.dashboard,
+.feed {
+    padding-block: var(--space-2xl);
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-base);
+    margin-bottom: var(--space-xl);
+}
+
+/* .badge defaults to absolute  */
+.dashboard-header .badge,
+.nav-actions .badge {
+    position: static;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-base);
+    margin-bottom: var(--space-lg);
+}
+
+.stat-tile {
+    background-color: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: var(--space-lg);
+    text-align: center;
+}
+
+.stat-tile__value {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--text-1);
+}
+
+.stat-tile__label {
+    margin-top: var(--space-xs);
+    color: var(--text-2);
+    font-size: 14px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+.dashboard-main,
+.dashboard-aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.dashboard .card h3 {
+    margin-top: 0;
+}
+
+/* Weekly-progress meter */
+.progress-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-base);
+    margin-top: var(--space-base);
+    font-size: 14px;
+}
+
+.progress {
+    margin-top: var(--space-sm);
+    height: 10px;
+    border-radius: var(--radius-full);
+    background-color: rgba(251, 110, 30, 0.16);
+    overflow: hidden;
+}
+
+.progress__bar {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--pulse-gradient);
+}
+
+.quick-actions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.quick-actions a {
+    display: block;
+    padding: var(--space-md) var(--space-base);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    background-color: var(--surface-2);
+    color: var(--text-1);
+}
+
+.quick-actions a:hover {
+    border-color: var(--orange-500);
+    text-decoration: none;
+}
+
+/* Inside a card the empty state is a plain block, not a second panel. */
+.empty-state--inset {
+    background: none;
+    border: none;
+    padding: var(--space-lg) 0 0;
+    margin: 0 auto;
+}
+
+/* Community feed */
+.feed-list,
+.composer,
+.cta-card {
+    max-width: 720px;
+    margin: var(--space-lg) auto 0;
+}
+
+.feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+}
+
+.composer__row {
+    display: flex;
+    gap: var(--space-md);
+    align-items: flex-start;
+}
+
+.composer__row textarea {
+    flex: 1;
+}
+
+.composer__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-md);
+}
+
+.cta-card {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-card);
+    padding: var(--space-xl);
+    text-align: center;
+}
+
+.post-card {
+    background-color: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: var(--space-lg);
+}
+
+.post-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.post-card__meta strong {
+    display: block;
+}
+
+.post-card__time {
+    font-size: 13px;
+}
+
+.post-card__delete {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-2);
+}
+
+.post-card__delete:hover {
+    color: var(--danger);
+    text-decoration: none;
+}
+
+.post-card__body {
+    margin: var(--space-md) 0 0;
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
