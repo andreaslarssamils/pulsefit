@@ -196,14 +196,16 @@
         <p class="landing-cta__lead text-muted">
             Join the members training smarter with PulseFit. Your first plan is on us.
         </p>
+    <div class="flex flex-align-center flex-justify-center">
         <a class="btn btn-primary" href="/accounts/signup/">Start Your Free Journey →</a>
         <div class="avatar-group">
             <span class="avatar" aria-hidden="true"></span>
             <span class="avatar" aria-hidden="true"></span>
             <span class="avatar" aria-hidden="true"></span>
             <span class="avatar" aria-hidden="true"></span>
-            <span class="avatar-group__label">{{ member_count }} member{{ member_count|pluralize }} and counting</span>
         </div>
+    </div>
+    <p class="avatar-group__label">{{ member_count }} member{{ member_count|pluralize }} and counting</p>
     </div>
 </section>
 {% endblock %}

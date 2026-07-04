@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -5,9 +6,11 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from blog.models import BlogPost
+from dashboard.models import WorkoutLog
 from orders.models import Order
 from plans.models import Plan, PlanCategory
 from products.models import Product, ProductCategory
+from reviews.models import Review
 
 User = get_user_model()
 
@@ -225,3 +228,79 @@ class FlashMessageAuditTests(TestCase):
             follow=True,
         )
         self.assertTrue(message_texts(resp))
+
+
+@override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
+class HomeViewTests(TestCase):
+    """Sprint 8: the root URL is a dynamic marketing landing page (US-39)."""
+
+    def test_root_renders_home_template(self):
+        resp = self.client.get("/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "pages/home.html")
+
+    def test_home_url_name_reverses(self):
+        # coming_soon was renamed to home; the root still resolves.
+        self.assertEqual(reverse("core:home"), "/")
+
+    def test_home_exposes_dynamic_counts(self):
+        make_user(email="a@example.com")
+        make_user(email="b@example.com")
+        make_plan()
+        member = User.objects.first()
+        WorkoutLog.objects.create(
+            user=member, date=date(2026, 7, 1), duration_minutes=30
+        )
+        WorkoutLog.objects.create(
+            user=member, date=date(2026, 7, 2), duration_minutes=45
+        )
+
+        resp = self.client.get("/")
+
+        self.assertEqual(resp.context["member_count"], 2)
+        self.assertEqual(resp.context["workout_count"], 2)
+        self.assertEqual(resp.context["plan_count"], 1)
+
+    def test_testimonials_are_only_five_star_reviews(self):
+        plan = make_plan()
+        five = Review.objects.create(
+            user=make_user(email="five@example.com"),
+            plan=plan,
+            rating=5,
+            body="Life changing programme!",
+        )
+        Review.objects.create(
+            user=make_user(email="four@example.com"),
+            plan=plan,
+            rating=4,
+            body="Pretty good",
+        )
+
+        resp = self.client.get("/")
+
+        testimonials = list(resp.context["testimonials"])
+        self.assertEqual(testimonials, [five])
+        self.assertContains(resp, "Life changing programme!")
+        self.assertNotContains(resp, "Pretty good")
+
+    def test_testimonials_capped_at_four_newest_first(self):
+        plan = make_plan()
+        for i in range(6):
+            Review.objects.create(
+                user=make_user(email=f"u{i}@example.com"),
+                plan=plan,
+                rating=5,
+                body=f"Great review {i}",
+            )
+
+        resp = self.client.get("/")
+
+        testimonials = resp.context["testimonials"]
+        self.assertEqual(len(testimonials), 4)
+        # newest first: review 5 was created last
+        self.assertEqual(testimonials[0].body, "Great review 5")
+
+    def test_home_renders_without_any_reviews(self):
+        resp = self.client.get("/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(list(resp.context["testimonials"]), [])

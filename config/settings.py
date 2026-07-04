@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "blog",
     "reviews",
     "challenges",
+    "newsletter",
 ]
 
 MIDDLEWARE = [
@@ -117,6 +118,8 @@ ACCOUNT_SIGNUP_FORM_CLASS = "accounts.forms.CustomSignupForm"
 
 LOGIN_REDIRECT_URL = "/dashboard/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 * 3
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

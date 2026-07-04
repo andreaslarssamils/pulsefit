@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -150,3 +151,27 @@ class StripeCustomerFieldTests(TestCase):
             password="pw12345!"
         )
         self.assertEqual(user.stripe_customer_id, "")
+
+
+@override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
+class PasswordResetTests(TestCase):
+    def test_reset_request_page_is_branded(self):
+        resp = self.client.get(reverse("account_reset_password"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Reset your password")
+
+    def test_reset_request_sends_branded_email_with_link(self):
+        User.objects.create_user(email="member@example.com", password="pw12345!")
+        resp = self.client.post(
+            reverse("account_reset_password"), {"email": "member@example.com"}
+        )
+        # allauth redirects to the "done" page on success.
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("PulseFit", mail.outbox[0].subject)
+        self.assertIn("password/reset/key/", mail.outbox[0].body)
+
+    def test_done_page_renders(self):
+        resp = self.client.get(reverse("account_reset_password_done"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Check your inbox")

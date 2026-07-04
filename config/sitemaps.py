@@ -14,7 +14,7 @@ class StaticViewSitemap(Sitemap):
 
     def items(self):
         return [
-            "core:coming_soon",
+            "core:home",
             "plans:list",
             "products:list",
             "subscriptions:pricing",
