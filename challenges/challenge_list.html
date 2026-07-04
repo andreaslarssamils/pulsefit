@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Challenges — PulseFit{% endblock %}
+{% block meta_description %}Join a time-limited PulseFit fitness challenge and train toward a shared goal.{% endblock %}
+
+{% block content %}
+<section class="container catalog">
+    <header class="catalog-header">
+        <p class="eyebrow">Train together</p>
+        <h1>Challenges</h1>
+        <p class="text-muted">Time-limited group goals to keep you moving.</p>
+    </header>
+
+    {% if challenges %}
+    <div class="catalog-grid">
+        {% for challenge in challenges %}
+        <div class="catalog-card">
+            <span class="card-media">
+                {% if challenge.image %}<img src="{{ challenge.image }}" alt="{{ challenge.title }}">{% endif %}
+                {% if challenge.status == "active" %}
+                    <span class="badge badge--instock">Active</span>
+                {% elif challenge.status == "upcoming" %}
+                    <span class="badge badge--premium">Upcoming</span>
+                {% else %}
+                    <span class="badge badge--out">Ended</span>
+                {% endif %}
+            </span>
+            <span class="card-body">
+                <span class="eyebrow">{{ challenge.start_date|date:"M j" }} – {{ challenge.end_date|date:"M j, Y" }}</span>
+                <span class="card-title">{{ challenge.title }}</span>
+                <span class="text-muted">{{ challenge.description }}</span>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-state__icon" aria-hidden="true"></span>
+        <p class="empty-state__title">No challenges yet</p>
+        <p class="text-muted">Check back soon — new challenges drop regularly.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
