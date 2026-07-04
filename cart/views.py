@@ -1,7 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -11,7 +9,9 @@ from .cart import ITEM_MODELS, Cart
 def _redirect_back(request, default="cart:detail"):
     referer = request.META.get("HTTP_REFERER")
     if referer and url_has_allowed_host_and_scheme(
-        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+        referer,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure()
     ):
         return redirect(referer)
     return redirect(default)
@@ -50,10 +50,12 @@ def update_cart(request, item_type, item_id):
         qty = 1
     qty = max(qty, 1)
     Cart(request).update(item_type, item_id, qty)
+    messages.success(request, "Cart updated.")
     return redirect("cart:detail")
 
 
 @require_POST
 def remove_from_cart(request, item_type, item_id):
     Cart(request).remove(item_type, item_id)
+    messages.success(request, "Item removed from cart.")
     return redirect("cart:detail")

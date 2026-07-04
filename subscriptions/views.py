@@ -30,7 +30,9 @@ def stripe_webhook(request):
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
     try:
         event = stripe.Webhook.construct_event(
-            request.body, sig_header, settings.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET
+            request.body,
+            sig_header,
+            settings.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET
         )
     except (ValueError, stripe.SignatureVerificationError):
         logger.warning("Subscription webhook signature verification failed")
@@ -68,7 +70,8 @@ def subscribe(request):
         customer=request.user.stripe_customer_id,
         line_items=[{"price": settings.STRIPE_PREMIUM_PRICE_ID, "quantity": 1}],
         client_reference_id=str(request.user.id),
-        success_url=request.build_absolute_uri(reverse("subscriptions:manage")),
+        success_url=request.build_absolute_uri(reverse("subscriptions:manage"))
+        + "?checkout=success",
         cancel_url=request.build_absolute_uri(reverse("subscriptions:pricing")),
     )
     return redirect(session.url)
@@ -77,7 +80,16 @@ def subscribe(request):
 @login_required
 def manage(request):
     subscription = Subscription.objects.filter(user=request.user).first()
-    return render(request, "subscriptions/manage.html", {"subscription": subscription})
+    if request.GET.get("checkout") == "success":
+        messages.success(
+            request,
+            "Welcome to PulseFit Premium! Your subscription is being activated.",
+        )
+    return render(
+        request,
+        "subscriptions/manage.html",
+        {"subscription": subscription}
+    )
 
 
 @login_required

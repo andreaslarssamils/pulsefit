@@ -1,3 +1,19 @@
+// Toasts (notifications). Dismissible and auto-dismiss after 6 seconds.
+document.addEventListener('click', function (event) {
+  const close = event.target.closest('.toast__close');
+  if (!close) return;
+  const toast = close.closest('.toast');
+  if (toast) toast.remove();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.toast').forEach(function (toast) {
+    setTimeout(function () {
+      toast.remove();
+    }, 6000);
+  });
+});
+
 // Show/hide password toggle. Buttons opt in with
 // data-toggle-password="<input id>" (see auth templates).
 document.addEventListener('click', function (event) {

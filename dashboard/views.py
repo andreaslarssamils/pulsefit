@@ -16,7 +16,7 @@ from .services import (
 
 @login_required
 def dashboard(request):
-    """Personal dashboard: stat tiles, weekly progress, today's plan (US-19)."""
+    """Personal dashboard: stat tiles, weekly progress, today's plan """
     today = timezone.localdate()
     return render(
         request,
@@ -32,7 +32,7 @@ def dashboard(request):
 
 @login_required
 def set_goal(request):
-    """Create or update the user's weekly workout target (US-21)."""
+    """Create or update the user's weekly workout target"""
     goal = UserGoal.objects.filter(user=request.user).first()
     if request.method == "POST":
         form = GoalForm(request.POST, instance=goal)
@@ -43,6 +43,7 @@ def set_goal(request):
             goal.save()
             messages.success(request, "Weekly goal saved.")
             return redirect("dashboard:home")
+        messages.error(request, "Please fix the errors below.")
     else:
         form = GoalForm(instance=goal)
     return render(request, "dashboard/set_goal.html", {"form": form})
@@ -50,7 +51,7 @@ def set_goal(request):
 
 @login_required
 def log_workout(request):
-    """Log a completed workout (US-20)."""
+    """Log a completed workout"""
     if request.method == "POST":
         form = WorkoutLogForm(request.POST)
         if form.is_valid():
@@ -59,6 +60,7 @@ def log_workout(request):
             log.save()
             messages.success(request, "Workout logged. Keep it up!")
             return redirect("dashboard:home")
+        messages.error(request, "Please fix the errors below.")
     else:
         form = WorkoutLogForm()
     return render(request, "dashboard/log_workout.html", {"form": form})

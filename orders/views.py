@@ -90,20 +90,28 @@ def checkout_view(request):
 
 
 def order_success_view(request):
+    """ Handle the order success page after a successful checkout."""
     session_id = request.GET.get("session_id", "")
     order = Order.objects.filter(stripe_checkout_session_id=session_id).first()
-    if order and request.user.is_authenticated and order.user_id == request.user.id:
-        Cart(request).clear()
+    if order:
+        messages.success(
+            request,
+            f"Payment received — order {order.order_number} is confirmed."
+        )
+        if request.user.is_authenticated and order.user_id == request.user.id:
+            Cart(request).clear()
     return render(request, "orders/order_success.html", {"order": order})
 
 
 def order_cancel_view(request):
+    messages.info(request, "Checkout canceled — your cart is still saved.")
     return render(request, "orders/order_cancel.html")
 
 
 @csrf_exempt
 @require_POST
 def stripe_webhook(request):
+    """ Handle Stripe webhook events for order processing."""
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
     try:

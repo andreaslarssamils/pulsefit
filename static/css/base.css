@@ -466,12 +466,37 @@ select:focus {
 }
 
 .toast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-base);
     border-radius: var(--radius-input);
     padding: var(--space-md) var(--space-base);
     border: 1px solid var(--border);
     background-color: var(--surface-2);
     color: var(--text-1);
     font-size: 14px;
+}
+
+.toast__text {
+    flex: 1;
+}
+
+.toast__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    font-size: 20px;
+    color: var(--text-2);
+    cursor: pointer;
+}
+
+.toast__close:hover {
+    color: var(--text-1);
 }
 
 .toast--success {

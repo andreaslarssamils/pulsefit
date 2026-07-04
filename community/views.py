@@ -37,7 +37,7 @@ def feed(request):
 @login_required
 @require_POST
 def post_create(request):
-    """Create a post from the feed composer (US-23)."""
+    """Create a post from the feed composer """
     form = CommunityPostForm(request.POST)
     if form.is_valid():
         post = form.save(commit=False)
@@ -45,7 +45,12 @@ def post_create(request):
         post.save()
         messages.success(request, "Post shared with the community.")
         return redirect("community:feed")
-    return render(request, "community/feed.html", _feed_context(request, form=form))
+    messages.error(request, "Please fix the errors below.")
+    return render(
+        request,
+        "community/feed.html",
+        _feed_context(request, form=form)
+    )
 
 
 @login_required
