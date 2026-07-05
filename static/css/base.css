@@ -445,9 +445,11 @@ select:focus {
     gap: var(--space-xl);
 }
 
-.site-footer h3 {
+.site-footer h2 {
     font-family: var(--font-body);
     font-size: 12px;
+    font-weight: 600;
+    line-height: 30px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-1);
@@ -896,8 +898,11 @@ select:focus {
     gap: var(--space-lg);
 }
 
-.dashboard .card h3 {
+.dashboard .card h2 {
     margin-top: 0;
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 600;
 }
 
 /* Weekly-progress meter */
