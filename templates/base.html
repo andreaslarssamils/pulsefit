@@ -81,7 +81,7 @@
                 </p>
             </div>
             <div>
-                <h4>Product</h4>
+                <h3>Product</h3>
                 <ul>
                     <li><a href="{% url 'plans:list' %}">Plans</a></li>
                     <li><a href="{% url 'products:list' %}">Shop</a></li>
@@ -89,7 +89,7 @@
                 </ul>
             </div>
             <div>
-                <h4>Community</h4>
+                <h3>Community</h3>
                 <ul>
                     <li><a href="{% url 'community:feed' %}">Feed</a></li>
                     <li><a href="{% url 'blog:list' %}">Blog</a></li>
@@ -97,21 +97,21 @@
                 </ul>
             </div>
             <div>
-                <h4>Company</h4>
+                <h3>Company</h3>
                 <ul>
                     <li><a href="#">About</a></li>
                     <li><a href="#">Contact</a></li>
                 </ul>
             </div>
             <div>
-                <h4>Legal</h4>
+                <h3>Legal</h3>
                 <ul>
                     <li><a href="#">Privacy</a></li>
                     <li><a href="#">Terms</a></li>
                 </ul>
             </div>
             <div>
-                <h4>Newsletter</h4>
+                <h3>Newsletter</h3>
                 <p class="text-muted">Fitness tips and offers, straight to your inbox.</p>
                 <form method="post" action="{% url 'newsletter:subscribe' %}">
                     {% csrf_token %}

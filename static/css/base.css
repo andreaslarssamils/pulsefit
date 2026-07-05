@@ -445,7 +445,7 @@ select:focus {
     gap: var(--space-xl);
 }
 
-.site-footer h4 {
+.site-footer h3 {
     font-family: var(--font-body);
     font-size: 12px;
     letter-spacing: 1.5px;
