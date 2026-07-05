@@ -2,6 +2,7 @@ import json
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
+import stripe
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.db import IntegrityError, transaction
@@ -259,84 +260,130 @@ class StripeWebhookTests(TestCase):
         cart_snapshot = json.dumps([
             {"t": "product", "id": self.product.id, "q": 2, "name": "Resistance Bands", "price": "29.00"},
         ])
-        return {
+        # Build a real StripeObject (not a dict). Live webhooks deliver a
+        # StripeObject, which since stripe 15 is not a dict subclass and has no
+        # .get(); asserting against a plain dict is what hid the production 500.
+        return stripe.checkout.Session.construct_from({
             "id": session_id,
+            "mode": "payment",
             "client_reference_id": str(self.user.id),
             "amount_total": 5800,
             "metadata": {"cart": cart_snapshot},
             "shipping_details": None,
+        }, "sk_test_x")
+
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_creates_order_and_items(self, mock_construct):
+        session = self._completed_session_payload()
+        mock_construct.return_value = {
+            "type": "checkout.session.completed", "data": {"object": session},
         }
 
-    # --- Temporarily disabled (see verify run): these 4 webhook tests are
-    # pre-existing failures on unmodified HEAD, unrelated to the toast/flash
-    # message changes. Re-enable once the webhook order-creation path is fixed.
-#     @patch("orders.views.stripe.Webhook.construct_event")
-#     def test_webhook_creates_order_and_items(self, mock_construct):
-#         session = self._completed_session_payload()
-#         mock_construct.return_value = {
-#             "type": "checkout.session.completed", "data": {"object": session},
-#         }
+        resp = self.client.post(
+            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-sig",
+        )
 
-#         resp = self.client.post(
-#             reverse("orders:webhook"), data=b"{}", content_type="application/json",
-#             HTTP_STRIPE_SIGNATURE="test-sig",
-#         )
+        self.assertEqual(resp.status_code, 200)
+        order = Order.objects.get(stripe_checkout_session_id="cs_test_123")
+        self.assertEqual(order.user, self.user)
+        self.assertEqual(order.status, "paid")
+        self.assertEqual(order.total, Decimal("58.00"))
+        self.assertEqual(order.items.count(), 1)
+        self.assertEqual(order.items.first().quantity, 2)
 
-#         self.assertEqual(resp.status_code, 200)
-#         order = Order.objects.get(stripe_checkout_session_id="cs_test_123")
-#         self.assertEqual(order.user, self.user)
-#         self.assertEqual(order.status, "paid")
-#         self.assertEqual(order.total, Decimal("58.00"))
-#         self.assertEqual(order.items.count(), 1)
-#         self.assertEqual(order.items.first().quantity, 2)
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_decrements_product_stock(self, mock_construct):
+        session = self._completed_session_payload()
+        mock_construct.return_value = {
+            "type": "checkout.session.completed", "data": {"object": session},
+        }
 
-#     @patch("orders.views.stripe.Webhook.construct_event")
-#     def test_webhook_decrements_product_stock(self, mock_construct):
-#         session = self._completed_session_payload()
-#         mock_construct.return_value = {
-#             "type": "checkout.session.completed", "data": {"object": session},
-#         }
+        self.client.post(
+            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-sig",
+        )
 
-#         self.client.post(
-#             reverse("orders:webhook"), data=b"{}", content_type="application/json",
-#             HTTP_STRIPE_SIGNATURE="test-sig",
-#         )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 8)
 
-#         self.product.refresh_from_db()
-#         self.assertEqual(self.product.stock, 8)
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_sends_confirmation_email(self, mock_construct):
+        session = self._completed_session_payload()
+        mock_construct.return_value = {
+            "type": "checkout.session.completed", "data": {"object": session},
+        }
 
-#     @patch("orders.views.stripe.Webhook.construct_event")
-#     def test_webhook_sends_confirmation_email(self, mock_construct):
-#         session = self._completed_session_payload()
-#         mock_construct.return_value = {
-#             "type": "checkout.session.completed", "data": {"object": session},
-#         }
+        self.client.post(
+            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-sig",
+        )
 
-#         self.client.post(
-#             reverse("orders:webhook"), data=b"{}", content_type="application/json",
-#             HTTP_STRIPE_SIGNATURE="test-sig",
-#         )
+        self.assertEqual(len(mail.outbox), 1)
 
-#         self.assertEqual(len(mail.outbox), 1)
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_is_idempotent_for_duplicate_delivery(self, mock_construct):
+        session = self._completed_session_payload()
+        mock_construct.return_value = {
+            "type": "checkout.session.completed", "data": {"object": session},
+        }
 
-#     @patch("orders.views.stripe.Webhook.construct_event")
-#     def test_webhook_is_idempotent_for_duplicate_delivery(self, mock_construct):
-#         session = self._completed_session_payload()
-#         mock_construct.return_value = {
-#             "type": "checkout.session.completed", "data": {"object": session},
-#         }
+        for _ in range(2):
+            self.client.post(
+                reverse("orders:webhook"), data=b"{}", content_type="application/json",
+                HTTP_STRIPE_SIGNATURE="test-sig",
+            )
 
-#         for _ in range(2):
-#             self.client.post(
-#                 reverse("orders:webhook"), data=b"{}", content_type="application/json",
-#                 HTTP_STRIPE_SIGNATURE="test-sig",
-#             )
+        self.assertEqual(
+            Order.objects.filter(stripe_checkout_session_id="cs_test_123").count(), 1
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 8)
 
-#         self.assertEqual(
-#             Order.objects.filter(stripe_checkout_session_id="cs_test_123").count(), 1
-#         )
-#         self.product.refresh_from_db()
-#         self.assertEqual(self.product.stock, 8)
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_saves_shipping_address_from_legacy_shipping_field(self, mock_construct):
+        # API version 2020-08-27 delivers the address under `shipping`, not
+        # `shipping_details`; a physical order must still capture it.
+        cart_snapshot = json.dumps([
+            {"t": "product", "id": self.product.id, "q": 1, "name": "Resistance Bands", "price": "29.00"},
+        ])
+        session = stripe.checkout.Session.construct_from({
+            "id": "cs_test_ship", "mode": "payment",
+            "client_reference_id": str(self.user.id), "amount_total": 2900,
+            "metadata": {"cart": cart_snapshot},
+            "shipping_details": None,
+            "shipping": {
+                "name": "Test Buyer",
+                "address": {"line1": "Vastbyvagen 19C", "city": "Nyhammar",
+                            "postal_code": "77260", "country": "SE"},
+            },
+        }, "sk_test_x")
+        mock_construct.return_value = {
+            "type": "checkout.session.completed", "data": {"object": session},
+        }
+        self.client.post(
+            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-sig",
+        )
+        order = Order.objects.get(stripe_checkout_session_id="cs_test_ship")
+        self.assertEqual(order.shipping_name, "Test Buyer")
+        self.assertEqual(order.shipping_city, "Nyhammar")
+        self.assertEqual(order.shipping_country, "SE")
+
+    @patch("orders.views.Order.objects.create", side_effect=IntegrityError("duplicate"))
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_concurrent_duplicate_does_not_500(self, mock_construct, mock_create):
+        # A concurrent duplicate delivery slips past the exists() check and hits
+        # the UNIQUE constraint on create(); the webhook must still return 200.
+        session = self._completed_session_payload()
+        mock_construct.return_value = {
+            "type": "checkout.session.completed", "data": {"object": session},
+        }
+        resp = self.client.post(
+            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-sig",
+        )
+        self.assertEqual(resp.status_code, 200)
 
     def test_webhook_rejects_invalid_signature(self):
         resp = self.client.post(

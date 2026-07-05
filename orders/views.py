@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.http import HttpResponse
@@ -124,6 +124,11 @@ def stripe_webhook(request):
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
+        # Live webhooks deliver a StripeObject, which since stripe 15 is not a
+        # dict subclass and has no .get(); normalise to a plain (recursively
+        # converted) dict so the handler can use .get()/[] uniformly.
+        if not isinstance(session, dict):
+            session = json.loads(str(session))
         if session.get("mode") == "payment":
             _handle_checkout_completed(session)
         # subscription-mode completions are handled by the subscriptions webhook
@@ -140,43 +145,53 @@ def _handle_checkout_completed(session):
 
     user = get_object_or_404(User, pk=session["client_reference_id"])
     cart_snapshot = json.loads(session["metadata"]["cart"])
-    shipping = session.get("shipping_details") or {}
+    # `shipping_details` on newer API versions, `shipping` on 2020-08-27 — read
+    # both so a physical order captures the address regardless of event shape.
+    shipping = session.get("shipping_details") or session.get("shipping") or {}
     address = shipping.get("address") or {}
 
-    with transaction.atomic():
-        order = Order.objects.create(
-            user=user,
-            order_number=Order.generate_order_number(),
-            status="paid",
-            total=(Decimal(session["amount_total"]) / 100).quantize(Decimal("0.01")),
-            stripe_checkout_session_id=session["id"],
-            shipping_name=shipping.get("name") or "",
-            shipping_address_line1=address.get("line1") or "",
-            shipping_address_line2=address.get("line2") or "",
-            shipping_city=address.get("city") or "",
-            shipping_postal_code=address.get("postal_code") or "",
-            shipping_country=address.get("country") or "",
-        )
+    try:
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=user,
+                order_number=Order.generate_order_number(),
+                status="paid",
+                total=(Decimal(session["amount_total"]) / 100).quantize(Decimal("0.01")),
+                stripe_checkout_session_id=session["id"],
+                shipping_name=shipping.get("name") or "",
+                shipping_address_line1=address.get("line1") or "",
+                shipping_address_line2=address.get("line2") or "",
+                shipping_city=address.get("city") or "",
+                shipping_postal_code=address.get("postal_code") or "",
+                shipping_country=address.get("country") or "",
+            )
 
-        for entry in cart_snapshot:
-            item_kwargs = {
-                "order": order,
-                "name": entry["name"],
-                "unit_price": Decimal(entry["price"]),
-                "quantity": entry["q"],
-            }
-            if entry["t"] == "plan":
-                item_kwargs["plan_id"] = entry["id"]
-                PlanAccess.objects.get_or_create(
-                    user=user,
-                    plan_id=entry["id"],
-                    defaults={"source": "purchase", "order": order},
-                )
-            else:
-                item_kwargs["product_id"] = entry["id"]
-                Product.objects.filter(pk=entry["id"]).update(
-                    stock=Greatest(F("stock") - entry["q"], 0)
-                )
-            OrderItem.objects.create(**item_kwargs)
+            for entry in cart_snapshot:
+                item_kwargs = {
+                    "order": order,
+                    "name": entry["name"],
+                    "unit_price": Decimal(entry["price"]),
+                    "quantity": entry["q"],
+                }
+                if entry["t"] == "plan":
+                    item_kwargs["plan_id"] = entry["id"]
+                    PlanAccess.objects.get_or_create(
+                        user=user,
+                        plan_id=entry["id"],
+                        defaults={"source": "purchase", "order": order},
+                    )
+                else:
+                    item_kwargs["product_id"] = entry["id"]
+                    Product.objects.filter(pk=entry["id"]).update(
+                        stock=Greatest(F("stock") - entry["q"], 0)
+                    )
+                OrderItem.objects.create(**item_kwargs)
+    except IntegrityError:
+        # A concurrent duplicate delivery already created this order (the
+        # exists() check above isn't atomic). Treat as already handled.
+        logger.info(
+            "Concurrent duplicate for session %s, skipping", session["id"]
+        )
+        return
 
     send_order_confirmation_email(order)
