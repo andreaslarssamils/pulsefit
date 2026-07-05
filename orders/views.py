@@ -34,8 +34,8 @@ def checkout_view(request):
     """Handle the checkout process."""
     if request.method != "POST":
         messages.info(
-            request, "You're signed in — review your cart and continue to checkout."
-        )
+            request,
+            "You're signed in — review your cart and continue to checkout.")
         return redirect("cart:detail")
     cart = Cart(request)
     items = cart.items()
@@ -131,7 +131,8 @@ def stripe_webhook(request):
             session = json.loads(str(session))
         if session.get("mode") == "payment":
             _handle_checkout_completed(session)
-        # subscription-mode completions are handled by the subscriptions webhook
+        # subscription-mode completions are handled by the subscriptions
+        # webhook
 
     return HttpResponse(status=200)
 
@@ -139,14 +140,15 @@ def stripe_webhook(request):
 def _handle_checkout_completed(session):
     if Order.objects.filter(stripe_checkout_session_id=session["id"]).exists():
         logger.info(
-            "Duplicate webhook delivery for session %s, skipping", session["id"]
-        )
+            "Duplicate webhook delivery for session %s, skipping",
+            session["id"])
         return  # Stripe may deliver the same event more than once.
 
     user = get_object_or_404(User, pk=session["client_reference_id"])
     cart_snapshot = json.loads(session["metadata"]["cart"])
-    # `shipping_details` on newer API versions, `shipping` on 2020-08-27 — read
-    # both so a physical order captures the address regardless of event shape.
+    # `shipping_details` on newer API versions, `shipping` on
+    # 2020-08-27 — read both so a physical order captures the address
+    # regardless of event shape.
     shipping = session.get("shipping_details") or session.get("shipping") or {}
     address = shipping.get("address") or {}
 
@@ -156,7 +158,11 @@ def _handle_checkout_completed(session):
                 user=user,
                 order_number=Order.generate_order_number(),
                 status="paid",
-                total=(Decimal(session["amount_total"]) / 100).quantize(Decimal("0.01")),
+                total=(
+                    Decimal(
+                        session["amount_total"]) /
+                    100).quantize(
+                    Decimal("0.01")),
                 stripe_checkout_session_id=session["id"],
                 shipping_name=shipping.get("name") or "",
                 shipping_address_line1=address.get("line1") or "",

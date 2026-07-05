@@ -72,11 +72,12 @@ class WorkoutLogModelTests(TestCase):
         self.assertEqual(list(WorkoutLog.objects.all()), [newer, older])
 
     def test_plan_is_optional_and_nulled_when_plan_deleted(self):
-        # US-20: log captures plan (optional); history must survive plan removal.
+        # US-20: log captures plan (optional); history must survive plan
+        # removal.
         plan = make_plan()
         log = WorkoutLog.objects.create(
-            user=make_user(), plan=plan, date=date(2026, 7, 1), duration_minutes=30
-        )
+            user=make_user(), plan=plan, date=date(
+                2026, 7, 1), duration_minutes=30)
         plan.delete()
         log.refresh_from_db()
         self.assertIsNone(log.plan)
@@ -85,21 +86,30 @@ class WorkoutLogModelTests(TestCase):
 class UserGoalModelTests(TestCase):
     def test_str_shows_user_and_target(self):
         goal = UserGoal.objects.create(
-            user=make_user(), weekly_workouts_target=4, week_start=date(2026, 6, 29)
-        )
+            user=make_user(),
+            weekly_workouts_target=4,
+            week_start=date(
+                2026,
+                6,
+                29))
         self.assertIn("u@example.com", str(goal))
         self.assertIn("4", str(goal))
 
     def test_one_goal_per_user(self):
-        # US-21: "Create or update USER_GOAL record for the user" — one row per user.
+        # US-21: "Create or update USER_GOAL record for the user" —
+        # one row per user.
         user = make_user()
         UserGoal.objects.create(
             user=user, weekly_workouts_target=4, week_start=date(2026, 6, 29)
         )
         with self.assertRaises(IntegrityError):
             UserGoal.objects.create(
-                user=user, weekly_workouts_target=5, week_start=date(2026, 6, 29)
-            )
+                user=user,
+                weekly_workouts_target=5,
+                week_start=date(
+                    2026,
+                    6,
+                    29))
 
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
@@ -120,14 +130,19 @@ class SetGoalViewTests(TestCase):
 
     def test_get_prefills_existing_target(self):
         UserGoal.objects.create(
-            user=self.user, weekly_workouts_target=3, week_start=date(2026, 6, 29)
-        )
+            user=self.user,
+            weekly_workouts_target=3,
+            week_start=date(
+                2026,
+                6,
+                29))
         self.client.force_login(self.user)
         resp = self.client.get(reverse("dashboard:set_goal"))
         self.assertContains(resp, 'value="3"')
 
     def test_post_creates_goal_with_current_week_start(self):
-        # US-21: goal saved to USER_GOAL; week_start = Monday of the current week.
+        # US-21: goal saved to USER_GOAL; week_start = Monday of the current
+        # week.
         self.client.force_login(self.user)
         resp = self.client.post(
             reverse("dashboard:set_goal"), {"weekly_workouts_target": 4}
@@ -139,10 +154,16 @@ class SetGoalViewTests(TestCase):
 
     def test_post_updates_existing_goal(self):
         UserGoal.objects.create(
-            user=self.user, weekly_workouts_target=3, week_start=date(2020, 1, 6)
-        )
+            user=self.user,
+            weekly_workouts_target=3,
+            week_start=date(
+                2020,
+                1,
+                6))
         self.client.force_login(self.user)
-        self.client.post(reverse("dashboard:set_goal"), {"weekly_workouts_target": 5})
+        self.client.post(
+            reverse("dashboard:set_goal"), {
+                "weekly_workouts_target": 5})
         goals = UserGoal.objects.filter(user=self.user)
         self.assertEqual(goals.count(), 1)
         goal = goals.get()
@@ -198,7 +219,11 @@ class LogWorkoutViewTests(TestCase):
         self.client.force_login(self.user)
         self.client.post(
             reverse("dashboard:log_workout"),
-            {"plan": "", "date": timezone.localdate().isoformat(), "duration_minutes": 30},
+            {
+                "plan": "",
+                "date": timezone.localdate().isoformat(),
+                "duration_minutes": 30,
+            },
         )
         log = WorkoutLog.objects.get(user=self.user)
         self.assertIsNone(log.plan)
@@ -208,7 +233,11 @@ class LogWorkoutViewTests(TestCase):
         self.client.force_login(self.user)
         resp = self.client.post(
             reverse("dashboard:log_workout"),
-            {"plan": "", "date": timezone.localdate().isoformat(), "duration_minutes": 30},
+            {
+                "plan": "",
+                "date": timezone.localdate().isoformat(),
+                "duration_minutes": 30,
+            },
             follow=True,
         )
         self.assertContains(resp, "Workout logged")
@@ -228,7 +257,11 @@ class LogWorkoutViewTests(TestCase):
         self.client.force_login(self.user)
         resp = self.client.post(
             reverse("dashboard:log_workout"),
-            {"plan": "", "date": timezone.localdate().isoformat(), "duration_minutes": 0},
+            {
+                "plan": "",
+                "date": timezone.localdate().isoformat(),
+                "duration_minutes": 0,
+            },
         )
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(WorkoutLog.objects.exists())
@@ -257,13 +290,23 @@ class ServicesTests(TestCase):
 
     def log(self, day, minutes=30, user=None, plan=None):
         return WorkoutLog.objects.create(
-            user=user or self.user, plan=plan, date=day, duration_minutes=minutes
-        )
+            user=user or self.user,
+            plan=plan,
+            date=day,
+            duration_minutes=minutes)
 
     def test_week_start_returns_monday(self):
         self.assertEqual(week_start(date(2026, 7, 2)), date(2026, 6, 29))
-        self.assertEqual(week_start(date(2026, 6, 29)), date(2026, 6, 29))  # Monday
-        self.assertEqual(week_start(date(2026, 7, 5)), date(2026, 6, 29))  # Sunday
+        self.assertEqual(
+            week_start(
+                date(
+                    2026, 6, 29)), date(
+                2026, 6, 29))  # Monday
+        self.assertEqual(
+            week_start(
+                date(
+                    2026, 7, 5)), date(
+                2026, 6, 29))  # Sunday
 
     def test_streak_zero_without_logs_today_or_yesterday(self):
         self.assertEqual(current_streak(self.user, self.today), 0)
@@ -301,8 +344,12 @@ class ServicesTests(TestCase):
 
     def test_weekly_stats_completion_against_goal(self):
         UserGoal.objects.create(
-            user=self.user, weekly_workouts_target=4, week_start=date(2026, 6, 29)
-        )
+            user=self.user,
+            weekly_workouts_target=4,
+            week_start=date(
+                2026,
+                6,
+                29))
         self.log(self.today)
         self.log(self.today - timedelta(days=1))
         stats = weekly_stats(self.user, self.today)
@@ -311,11 +358,19 @@ class ServicesTests(TestCase):
 
     def test_weekly_stats_completion_capped_at_100(self):
         UserGoal.objects.create(
-            user=self.user, weekly_workouts_target=2, week_start=date(2026, 6, 29)
-        )
+            user=self.user,
+            weekly_workouts_target=2,
+            week_start=date(
+                2026,
+                6,
+                29))
         for offset in (0, 1, 2):
             self.log(self.today - timedelta(days=offset))
-        self.assertEqual(weekly_stats(self.user, self.today)["completion"], 100)
+        self.assertEqual(
+            weekly_stats(
+                self.user,
+                self.today)["completion"],
+            100)
 
     def test_weekly_stats_without_goal(self):
         self.log(self.today)
@@ -366,27 +421,49 @@ class DashboardViewTests(TestCase):
         self.assertContains(resp, reverse("subscriptions:manage"))
 
     def test_stat_tiles_show_workouts_minutes_streak_completion(self):
-        # US-19: weekly workouts completed, total minutes logged, streak, goal %.
+        # US-19: weekly workouts completed, total minutes logged, streak, goal
+        # %.
         UserGoal.objects.create(
             user=self.user,
             weekly_workouts_target=5,
             week_start=monday_of_current_week(),
         )
         today = timezone.localdate()
-        WorkoutLog.objects.create(user=self.user, date=today, duration_minutes=30)
-        WorkoutLog.objects.create(user=self.user, date=today, duration_minutes=45)
+        WorkoutLog.objects.create(
+            user=self.user,
+            date=today,
+            duration_minutes=30)
+        WorkoutLog.objects.create(
+            user=self.user,
+            date=today,
+            duration_minutes=45)
         self.client.force_login(self.user)
         resp = self.client.get(reverse("dashboard:home"))
-        self.assertContains(resp, '<div class="stat-tile__value">2</div>', html=True)
-        self.assertContains(resp, '<div class="stat-tile__value">75</div>', html=True)
-        self.assertContains(resp, '<div class="stat-tile__value">1</div>', html=True)
-        self.assertContains(resp, '<div class="stat-tile__value">40%</div>', html=True)
+        self.assertContains(
+            resp,
+            '<div class="stat-tile__value">2</div>',
+            html=True)
+        self.assertContains(
+            resp,
+            '<div class="stat-tile__value">75</div>',
+            html=True)
+        self.assertContains(
+            resp,
+            '<div class="stat-tile__value">1</div>',
+            html=True)
+        self.assertContains(
+            resp,
+            '<div class="stat-tile__value">40%</div>',
+            html=True)
         self.assertContains(resp, "2 / 5")
 
     def test_upsell_card_for_free_user_only(self):
         # US-19: free users see an "Upgrade to Premium" upsell card.
         self.client.force_login(self.user)
-        self.assertContains(self.client.get(reverse("dashboard:home")), "Go Premium")
+        self.assertContains(
+            self.client.get(
+                reverse("dashboard:home")),
+            "Go Premium")
         Subscription.objects.create(
             user=self.user,
             stripe_subscription_id="sub_test_1",
@@ -407,8 +484,10 @@ class DashboardViewTests(TestCase):
     def test_todays_plan_shows_latest_logged_plan(self):
         plan = make_plan(title="Hypertrophy Block")
         WorkoutLog.objects.create(
-            user=self.user, plan=plan, date=timezone.localdate(), duration_minutes=30
-        )
+            user=self.user,
+            plan=plan,
+            date=timezone.localdate(),
+            duration_minutes=30)
         self.client.force_login(self.user)
         resp = self.client.get(reverse("dashboard:home"))
         self.assertContains(resp, "Hypertrophy Block")
@@ -440,7 +519,8 @@ class DashboardAdminTests(TestCase):
         self.client.force_login(admin)
 
     def test_workoutlog_changelist_loads(self):
-        resp = self.client.get(reverse("admin:dashboard_workoutlog_changelist"))
+        resp = self.client.get(
+            reverse("admin:dashboard_workoutlog_changelist"))
         self.assertEqual(resp.status_code, 200)
 
     def test_usergoal_changelist_loads(self):

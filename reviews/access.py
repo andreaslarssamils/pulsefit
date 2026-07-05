@@ -7,8 +7,9 @@ PURCHASED_STATUSES = ("paid", "shipped")
 
 def can_review(user, *, plan=None, product=None) -> bool:
     """
-    A user may review a plan they hold ``PlanAccess`` for, or a product they have
-    a completed (paid/shipped) order line for. Anonymous users can never review.
+    A user may review a plan they hold ``PlanAccess`` for, or a
+    product they have a completed (paid/shipped) order line for.
+    Anonymous users can never review.
     """
     if not user.is_authenticated:
         return False

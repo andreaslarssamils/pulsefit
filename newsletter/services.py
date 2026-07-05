@@ -23,7 +23,10 @@ def subscribe_email(email):
     if not (api_key and audience_id and server_prefix):
         raise NewsletterError("Mailchimp is not configured.")
 
-    url = f"https://{server_prefix}.api.mailchimp.com/3.0/lists/{audience_id}/members"
+    url = (
+        f"https://{server_prefix}.api.mailchimp.com/3.0/lists/"
+        f"{audience_id}/members"
+    )
     try:
         response = requests.post(
             url,
@@ -44,5 +47,8 @@ def subscribe_email(email):
             title = None
         if title == "Member Exists":
             raise AlreadySubscribed(email)
-    logger.warning("Mailchimp error %s: %s", response.status_code, response.text)
+    logger.warning(
+        "Mailchimp error %s: %s",
+        response.status_code,
+        response.text)
     raise NewsletterError(f"Mailchimp returned {response.status_code}")

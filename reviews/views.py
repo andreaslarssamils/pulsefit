@@ -13,11 +13,16 @@ from .models import Review
 
 
 def _resolve_target(target_type, target_id):
-    """Return {"plan": obj} or {"product": obj} for the review's target, or 404."""
+    """Return {"plan": obj} or {"product": obj} for the review's
+    target, or 404."""
     if target_type == "plan":
         return {"plan": get_object_or_404(Plan, pk=target_id, is_active=True)}
     if target_type == "product":
-        return {"product": get_object_or_404(Product, pk=target_id, is_active=True)}
+        return {
+            "product": get_object_or_404(
+                Product,
+                pk=target_id,
+                is_active=True)}
     raise Http404("Unknown review target")
 
 
@@ -28,7 +33,9 @@ def review_create(request, target_type, target_id):
     target = _resolve_target(target_type, target_id)
     obj = target.get("plan") or target.get("product")
     if not can_review(request.user, **target):
-        messages.error(request, "You need access to this item before reviewing it.")
+        messages.error(
+            request,
+            "You need access to this item before reviewing it.")
         return redirect(obj.get_absolute_url())
     form = ReviewForm(request.POST)
     if form.is_valid():
@@ -40,7 +47,9 @@ def review_create(request, target_type, target_id):
                 "body": form.cleaned_data["body"],
             },
         )
-        messages.success(request, "Review posted." if created else "Review updated.")
+        messages.success(
+            request,
+            "Review posted." if created else "Review updated.")
     else:
         messages.error(request, "Please fix the errors in your review.")
     return redirect(obj.get_absolute_url())

@@ -16,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 def sync_subscription_access(subscription):
-    """Idempotently reconcile PlanAccess(source='subscription') rows against the
-    subscription's access state. Never touches source='purchase' rows."""
+    """Idempotently reconcile PlanAccess(source='subscription') rows
+    against the subscription's access state. Never touches
+    source='purchase' rows."""
     user = subscription.user
     if subscription.is_active:
         for plan in Plan.objects.filter(premium_only=True, is_active=True):
@@ -31,9 +32,12 @@ def sync_subscription_access(subscription):
 def sync_from_stripe_subscription(stripe_sub):
     """Upsert the Subscription row from a Stripe subscription object, then
     reconcile access. Idempotent — safe on redelivered webhooks."""
-    user = User.objects.filter(stripe_customer_id=stripe_sub["customer"]).first()
+    user = User.objects.filter(
+        stripe_customer_id=stripe_sub["customer"]).first()
     if user is None:
-        logger.warning("No user for Stripe customer %s", stripe_sub["customer"])
+        logger.warning(
+            "No user for Stripe customer %s",
+            stripe_sub["customer"])
         return
     period_end = stripe_sub["items"]["data"][0]["current_period_end"]
     sub, _ = Subscription.objects.update_or_create(

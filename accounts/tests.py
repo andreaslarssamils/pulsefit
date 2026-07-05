@@ -11,12 +11,13 @@ SIMPLE_STATIC_STORAGES = {
         {
             "BACKEND":
             "django.contrib.staticfiles.storage.StaticFilesStorage"
-        },
+    },
 }
 
 
 class CustomUserModelTests(TestCase):
     """Tests for the CustomUser model and its manager."""
+
     def test_email_is_username_field(self):
         self.assertEqual(User.USERNAME_FIELD, "email")
 
@@ -51,6 +52,7 @@ class AuthFlowTests(TestCase):
     Tests for the authentication flow,
     including signup, login, and logout.
     """
+
     def test_signup_creates_user_logs_in_and_maps_full_name(self):
         """Test that signing up creates a user, logs them in,
         and maps the full name to first and last names.
@@ -113,7 +115,9 @@ class AuthFlowTests(TestCase):
         # Duplicate email re-renders with an error;
         # no second user created.
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(User.objects.filter(email="taken@example.com").count(), 1)
+        self.assertEqual(
+            User.objects.filter(
+                email="taken@example.com").count(), 1)
         self.assertNotIn("_auth_user_id", self.client.session)
 
     def test_login_success_redirects_to_dashboard(self):
@@ -145,6 +149,7 @@ class AuthFlowTests(TestCase):
 
 class StripeCustomerFieldTests(TestCase):
     """Tests for the stripe_customer_id field in the CustomUser model."""
+
     def test_new_user_has_blank_stripe_customer_id(self):
         user = User.objects.create_user(
             email="s@example.com",
@@ -161,7 +166,9 @@ class PasswordResetTests(TestCase):
         self.assertContains(resp, "Reset your password")
 
     def test_reset_request_sends_branded_email_with_link(self):
-        User.objects.create_user(email="member@example.com", password="pw12345!")
+        User.objects.create_user(
+            email="member@example.com",
+            password="pw12345!")
         resp = self.client.post(
             reverse("account_reset_password"), {"email": "member@example.com"}
         )

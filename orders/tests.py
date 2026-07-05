@@ -15,8 +15,9 @@ from products.models import Product, ProductCategory
 
 User = get_user_model()
 
-# Plain static storage so rendering pages that call {% static %} does not depend
-# on `collectstatic` having built the manifest first (mirrors accounts/tests.py).
+# Plain static storage so rendering pages that call {% static %} does
+# not depend on `collectstatic` having built the manifest first
+# (mirrors accounts/tests.py).
 SIMPLE_STATIC_STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
@@ -52,7 +53,9 @@ def make_product(**kwargs):
 
 def make_order(user=None, **kwargs):
     defaults = {
-        "user": user or User.objects.create_user(email="shopper@example.com", password="pw12345!"),
+        "user": user or User.objects.create_user(
+            email="shopper@example.com",
+            password="pw12345!"),
         "order_number": Order.generate_order_number(),
         "total": Decimal("0.00"),
     }
@@ -71,7 +74,9 @@ class OrderModelTests(TestCase):
         self.assertEqual(len(number), 11)  # "PF-" + 8 hex chars
 
     def test_generate_order_number_is_unique_across_calls(self):
-        self.assertNotEqual(Order.generate_order_number(), Order.generate_order_number())
+        self.assertNotEqual(
+            Order.generate_order_number(),
+            Order.generate_order_number())
 
     def test_default_status_is_pending(self):
         self.assertEqual(make_order().status, "pending")
@@ -87,8 +92,11 @@ class OrderItemModelTests(TestCase):
 
     def test_str_includes_quantity_and_name(self):
         item = OrderItem.objects.create(
-            order=make_order(), product=make_product(), name="Resistance Bands",
-            unit_price=Decimal("29.00"), quantity=3,
+            order=make_order(),
+            product=make_product(),
+            name="Resistance Bands",
+            unit_price=Decimal("29.00"),
+            quantity=3,
         )
         self.assertEqual(str(item), "3 x Resistance Bands")
 
@@ -97,7 +105,10 @@ class OrderItemModelTests(TestCase):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 OrderItem.objects.create(
-                    order=order, name="Neither", unit_price=Decimal("1.00"), quantity=1,
+                    order=order,
+                    name="Neither",
+                    unit_price=Decimal("1.00"),
+                    quantity=1,
                 )
 
     def test_rejects_both_plan_and_product_set(self):
@@ -113,7 +124,8 @@ class OrderItemModelTests(TestCase):
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
 class CheckoutViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="shopper@example.com", password="pw12345!")
+        self.user = User.objects.create_user(
+            email="shopper@example.com", password="pw12345!")
 
     def test_checkout_requires_login(self):
         resp = self.client.post(reverse("orders:checkout"))
@@ -135,8 +147,10 @@ class CheckoutViewTests(TestCase):
         self.assertRedirects(resp, reverse("cart:detail"))
 
     @patch("orders.views.stripe.checkout.Session.create")
-    def test_checkout_creates_session_and_redirects_to_stripe(self, mock_create):
-        mock_create.return_value = MagicMock(url="https://checkout.stripe.com/test-session")
+    def test_checkout_creates_session_and_redirects_to_stripe(
+            self, mock_create):
+        mock_create.return_value = MagicMock(
+            url="https://checkout.stripe.com/test-session")
         product = make_product(price=Decimal("29.00"))
         self.client.force_login(self.user)
         self.client.post(reverse("cart:add", args=["product", product.id]))
@@ -144,8 +158,9 @@ class CheckoutViewTests(TestCase):
         resp = self.client.post(reverse("orders:checkout"))
 
         self.assertRedirects(
-            resp, "https://checkout.stripe.com/test-session", fetch_redirect_response=False
-        )
+            resp,
+            "https://checkout.stripe.com/test-session",
+            fetch_redirect_response=False)
         mock_create.assert_called_once()
         kwargs = mock_create.call_args.kwargs
         self.assertEqual(kwargs["mode"], "payment")
@@ -153,8 +168,10 @@ class CheckoutViewTests(TestCase):
         self.assertNotIn("payment_method_types", kwargs)
 
     @patch("orders.views.stripe.checkout.Session.create")
-    def test_checkout_requests_shipping_for_physical_product(self, mock_create):
-        mock_create.return_value = MagicMock(url="https://checkout.stripe.com/test-session")
+    def test_checkout_requests_shipping_for_physical_product(
+            self, mock_create):
+        mock_create.return_value = MagicMock(
+            url="https://checkout.stripe.com/test-session")
         product = make_product(price=Decimal("29.00"), is_digital=False)
         self.client.force_login(self.user)
         self.client.post(reverse("cart:add", args=["product", product.id]))
@@ -166,7 +183,8 @@ class CheckoutViewTests(TestCase):
 
     @patch("orders.views.stripe.checkout.Session.create")
     def test_checkout_skips_shipping_for_digital_only_cart(self, mock_create):
-        mock_create.return_value = MagicMock(url="https://checkout.stripe.com/test-session")
+        mock_create.return_value = MagicMock(
+            url="https://checkout.stripe.com/test-session")
         product = make_product(price=Decimal("19.00"), is_digital=True)
         self.client.force_login(self.user)
         self.client.post(reverse("cart:add", args=["product", product.id]))
@@ -194,7 +212,8 @@ class OrderSuccessCancelViewTests(TestCase):
         self.assertContains(resp, "confirming your payment")
 
     def test_success_page_clears_cart_for_matching_order_owner(self):
-        user = User.objects.create_user(email="buyer3@example.com", password="pw12345!")
+        user = User.objects.create_user(
+            email="buyer3@example.com", password="pw12345!")
         Order.objects.create(
             user=user, order_number="PF-CLEAR001", status="paid",
             total=Decimal("29.00"), stripe_checkout_session_id="cs_test_clear",
@@ -204,22 +223,31 @@ class OrderSuccessCancelViewTests(TestCase):
         self.client.post(reverse("cart:add", args=["product", product.id]))
         self.assertNotEqual(self.client.session.get("cart", {}), {})
 
-        self.client.get(reverse("orders:success"), {"session_id": "cs_test_clear"})
+        self.client.get(
+            reverse("orders:success"), {
+                "session_id": "cs_test_clear"})
 
         self.assertEqual(self.client.session.get("cart", {}), {})
 
     def test_success_page_does_not_clear_cart_for_other_users_order(self):
-        owner = User.objects.create_user(email="owner@example.com", password="pw12345!")
-        other = User.objects.create_user(email="other@example.com", password="pw12345!")
+        owner = User.objects.create_user(
+            email="owner@example.com", password="pw12345!")
+        other = User.objects.create_user(
+            email="other@example.com", password="pw12345!")
         Order.objects.create(
-            user=owner, order_number="PF-CLEAR002", status="paid",
-            total=Decimal("29.00"), stripe_checkout_session_id="cs_test_clear_2",
+            user=owner,
+            order_number="PF-CLEAR002",
+            status="paid",
+            total=Decimal("29.00"),
+            stripe_checkout_session_id="cs_test_clear_2",
         )
         self.client.force_login(other)
         product = make_product()
         self.client.post(reverse("cart:add", args=["product", product.id]))
 
-        self.client.get(reverse("orders:success"), {"session_id": "cs_test_clear_2"})
+        self.client.get(
+            reverse("orders:success"), {
+                "session_id": "cs_test_clear_2"})
 
         self.assertNotEqual(self.client.session.get("cart", {}), {})
 
@@ -232,9 +260,13 @@ class OrderConfirmationEmailTests(TestCase):
     def test_sends_email_with_order_number_items_and_total(self):
         from orders.emails import send_order_confirmation_email
 
-        user = User.objects.create_user(email="buyer@example.com", password="pw12345!")
+        user = User.objects.create_user(
+            email="buyer@example.com", password="pw12345!")
         order = Order.objects.create(
-            user=user, order_number="PF-ABCD1234", status="paid", total=Decimal("58.00"),
+            user=user,
+            order_number="PF-ABCD1234",
+            status="paid",
+            total=Decimal("58.00"),
         )
         OrderItem.objects.create(
             order=order, product=make_product(), name="Resistance Bands",
@@ -253,16 +285,24 @@ class OrderConfirmationEmailTests(TestCase):
 
 class StripeWebhookTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="shopper@example.com", password="pw12345!")
-        self.product = make_product(name="Resistance Bands", price=Decimal("29.00"), stock=10)
+        self.user = User.objects.create_user(
+            email="shopper@example.com", password="pw12345!")
+        self.product = make_product(
+            name="Resistance Bands",
+            price=Decimal("29.00"),
+            stock=10)
 
     def _completed_session_payload(self, session_id="cs_test_123"):
-        cart_snapshot = json.dumps([
-            {"t": "product", "id": self.product.id, "q": 2, "name": "Resistance Bands", "price": "29.00"},
-        ])
+        cart_snapshot = json.dumps([{"t": "product",
+                                     "id": self.product.id,
+                                     "q": 2,
+                                     "name": "Resistance Bands",
+                                     "price": "29.00"},
+                                    ])
         # Build a real StripeObject (not a dict). Live webhooks deliver a
         # StripeObject, which since stripe 15 is not a dict subclass and has no
-        # .get(); asserting against a plain dict is what hid the production 500.
+        # .get(); asserting against a plain dict is what hid the
+        # production 500.
         return stripe.checkout.Session.construct_from({
             "id": session_id,
             "mode": "payment",
@@ -280,7 +320,9 @@ class StripeWebhookTests(TestCase):
         }
 
         resp = self.client.post(
-            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            reverse("orders:webhook"),
+            data=b"{}",
+            content_type="application/json",
             HTTP_STRIPE_SIGNATURE="test-sig",
         )
 
@@ -300,7 +342,9 @@ class StripeWebhookTests(TestCase):
         }
 
         self.client.post(
-            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            reverse("orders:webhook"),
+            data=b"{}",
+            content_type="application/json",
             HTTP_STRIPE_SIGNATURE="test-sig",
         )
 
@@ -315,14 +359,17 @@ class StripeWebhookTests(TestCase):
         }
 
         self.client.post(
-            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            reverse("orders:webhook"),
+            data=b"{}",
+            content_type="application/json",
             HTTP_STRIPE_SIGNATURE="test-sig",
         )
 
         self.assertEqual(len(mail.outbox), 1)
 
     @patch("orders.views.stripe.Webhook.construct_event")
-    def test_webhook_is_idempotent_for_duplicate_delivery(self, mock_construct):
+    def test_webhook_is_idempotent_for_duplicate_delivery(
+            self, mock_construct):
         session = self._completed_session_payload()
         mock_construct.return_value = {
             "type": "checkout.session.completed", "data": {"object": session},
@@ -330,23 +377,29 @@ class StripeWebhookTests(TestCase):
 
         for _ in range(2):
             self.client.post(
-                reverse("orders:webhook"), data=b"{}", content_type="application/json",
+                reverse("orders:webhook"),
+                data=b"{}",
+                content_type="application/json",
                 HTTP_STRIPE_SIGNATURE="test-sig",
             )
 
         self.assertEqual(
-            Order.objects.filter(stripe_checkout_session_id="cs_test_123").count(), 1
-        )
+            Order.objects.filter(
+                stripe_checkout_session_id="cs_test_123").count(), 1)
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock, 8)
 
     @patch("orders.views.stripe.Webhook.construct_event")
-    def test_webhook_saves_shipping_address_from_legacy_shipping_field(self, mock_construct):
+    def test_webhook_saves_shipping_address_from_legacy_shipping_field(
+            self, mock_construct):
         # API version 2020-08-27 delivers the address under `shipping`, not
         # `shipping_details`; a physical order must still capture it.
-        cart_snapshot = json.dumps([
-            {"t": "product", "id": self.product.id, "q": 1, "name": "Resistance Bands", "price": "29.00"},
-        ])
+        cart_snapshot = json.dumps([{"t": "product",
+                                     "id": self.product.id,
+                                     "q": 1,
+                                     "name": "Resistance Bands",
+                                     "price": "29.00"},
+                                    ])
         session = stripe.checkout.Session.construct_from({
             "id": "cs_test_ship", "mode": "payment",
             "client_reference_id": str(self.user.id), "amount_total": 2900,
@@ -362,7 +415,9 @@ class StripeWebhookTests(TestCase):
             "type": "checkout.session.completed", "data": {"object": session},
         }
         self.client.post(
-            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            reverse("orders:webhook"),
+            data=b"{}",
+            content_type="application/json",
             HTTP_STRIPE_SIGNATURE="test-sig",
         )
         order = Order.objects.get(stripe_checkout_session_id="cs_test_ship")
@@ -370,24 +425,31 @@ class StripeWebhookTests(TestCase):
         self.assertEqual(order.shipping_city, "Nyhammar")
         self.assertEqual(order.shipping_country, "SE")
 
-    @patch("orders.views.Order.objects.create", side_effect=IntegrityError("duplicate"))
+    @patch("orders.views.Order.objects.create",
+           side_effect=IntegrityError("duplicate"))
     @patch("orders.views.stripe.Webhook.construct_event")
-    def test_webhook_concurrent_duplicate_does_not_500(self, mock_construct, mock_create):
-        # A concurrent duplicate delivery slips past the exists() check and hits
-        # the UNIQUE constraint on create(); the webhook must still return 200.
+    def test_webhook_concurrent_duplicate_does_not_500(
+            self, mock_construct, mock_create):
+        # A concurrent duplicate delivery slips past the exists() check
+        # and hits the UNIQUE constraint on create(); the webhook must
+        # still return 200.
         session = self._completed_session_payload()
         mock_construct.return_value = {
             "type": "checkout.session.completed", "data": {"object": session},
         }
         resp = self.client.post(
-            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            reverse("orders:webhook"),
+            data=b"{}",
+            content_type="application/json",
             HTTP_STRIPE_SIGNATURE="test-sig",
         )
         self.assertEqual(resp.status_code, 200)
 
     def test_webhook_rejects_invalid_signature(self):
         resp = self.client.post(
-            reverse("orders:webhook"), data=b"{}", content_type="application/json",
+            reverse("orders:webhook"),
+            data=b"{}",
+            content_type="application/json",
             HTTP_STRIPE_SIGNATURE="bad-sig",
         )
         self.assertEqual(resp.status_code, 400)
@@ -396,7 +458,8 @@ class StripeWebhookTests(TestCase):
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
 class OrderAdminTests(TestCase):
     def setUp(self):
-        admin_user = User.objects.create_superuser(email="admin@example.com", password="pw12345!")
+        admin_user = User.objects.create_superuser(
+            email="admin@example.com", password="pw12345!")
         self.client.force_login(admin_user)
 
     def test_order_changelist_loads(self):
@@ -404,22 +467,32 @@ class OrderAdminTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_order_changelist_shows_order_number(self):
-        buyer = User.objects.create_user(email="buyer@example.com", password="pw12345!")
+        buyer = User.objects.create_user(
+            email="buyer@example.com", password="pw12345!")
         Order.objects.create(
-            user=buyer, order_number="PF-ADMIN001", status="paid", total=Decimal("58.00")
-        )
+            user=buyer,
+            order_number="PF-ADMIN001",
+            status="paid",
+            total=Decimal("58.00"))
         resp = self.client.get(reverse("admin:orders_order_changelist"))
         self.assertContains(resp, "PF-ADMIN001")
 
     def test_order_detail_shows_inline_items(self):
-        buyer = User.objects.create_user(email="buyer2@example.com", password="pw12345!")
+        buyer = User.objects.create_user(
+            email="buyer2@example.com", password="pw12345!")
         order = Order.objects.create(
-            user=buyer, order_number="PF-ADMIN002", status="paid", total=Decimal("29.00")
-        )
+            user=buyer,
+            order_number="PF-ADMIN002",
+            status="paid",
+            total=Decimal("29.00"))
         OrderItem.objects.create(
             order=order, product=make_product(), name="Resistance Bands",
             unit_price=Decimal("29.00"), quantity=1,
         )
-        resp = self.client.get(reverse("admin:orders_order_change", args=[order.id]))
+        resp = self.client.get(
+            reverse(
+                "admin:orders_order_change",
+                args=[
+                    order.id]))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Resistance Bands")

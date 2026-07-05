@@ -37,5 +37,6 @@ class WorkoutLogForm(forms.ModelForm):
     def clean_date(self):
         day = self.cleaned_data["date"]
         if day > timezone.localdate():
-            raise forms.ValidationError("Workout date cannot be in the future.")
+            raise forms.ValidationError(
+                "Workout date cannot be in the future.")
         return day

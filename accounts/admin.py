@@ -7,10 +7,18 @@ from .models import CustomUser
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    """Admin for the email-based CustomUser (overrides username-based defaults)."""
+    """Admin for the email-based CustomUser.
+
+    Overrides the username-based defaults.
+    """
 
     ordering = ("email",)
-    list_display = ("email", "first_name", "last_name", "is_staff", "is_active")
+    list_display = (
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_active")
     list_filter = ("is_staff", "is_superuser", "is_active")
     search_fields = ("email", "first_name", "last_name")
 

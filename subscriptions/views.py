@@ -11,7 +11,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .models import Subscription
-from .services import refresh_subscription_from_invoice, sync_from_stripe_subscription
+from .services import (
+    refresh_subscription_from_invoice,
+    sync_from_stripe_subscription,
+)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 logger = logging.getLogger(__name__)
@@ -68,11 +71,17 @@ def subscribe(request):
     session = stripe.checkout.Session.create(
         mode="subscription",
         customer=request.user.stripe_customer_id,
-        line_items=[{"price": settings.STRIPE_PREMIUM_PRICE_ID, "quantity": 1}],
-        client_reference_id=str(request.user.id),
-        success_url=request.build_absolute_uri(reverse("subscriptions:manage"))
-        + "?checkout=success",
-        cancel_url=request.build_absolute_uri(reverse("subscriptions:pricing")),
+        line_items=[
+            {
+                "price": settings.STRIPE_PREMIUM_PRICE_ID,
+                "quantity": 1}],
+        client_reference_id=str(
+            request.user.id),
+        success_url=request.build_absolute_uri(
+            reverse("subscriptions:manage")) +
+        "?checkout=success",
+        cancel_url=request.build_absolute_uri(
+            reverse("subscriptions:pricing")),
     )
     return redirect(session.url)
 
@@ -83,7 +92,8 @@ def manage(request):
     if request.GET.get("checkout") == "success":
         messages.success(
             request,
-            "Welcome to PulseFit Premium! Your subscription is being activated.",
+            "Welcome to PulseFit Premium! Your subscription is being "
+            "activated.",
         )
     return render(
         request,

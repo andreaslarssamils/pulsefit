@@ -1,4 +1,7 @@
-"""Dashboard statistics helpers (US-19/US-20/US-21). Weeks run Monday–Sunday."""
+"""Dashboard statistics helpers (US-19/US-20/US-21).
+
+Weeks run Monday–Sunday.
+"""
 
 from datetime import timedelta
 
@@ -13,9 +16,15 @@ def week_start(day):
 
 
 def weekly_stats(user, today):
-    """Workouts, minutes and goal completion for the week containing `today`."""
+    """Workouts, minutes and goal completion for the week
+    containing `today`."""
     monday = week_start(today)
-    logs = user.workout_logs.filter(date__range=(monday, monday + timedelta(days=6)))
+    logs = user.workout_logs.filter(
+        date__range=(
+            monday,
+            monday +
+            timedelta(
+                days=6)))
     workouts = logs.count()
     minutes = logs.aggregate(total=Sum("duration_minutes"))["total"] or 0
     goal = UserGoal.objects.filter(user=user).first()
@@ -31,12 +40,17 @@ def weekly_stats(user, today):
 
 def total_minutes(user):
     """All-time minutes logged (the "total minutes" stat tile)."""
-    return user.workout_logs.aggregate(total=Sum("duration_minutes"))["total"] or 0
+    return user.workout_logs.aggregate(
+        total=Sum("duration_minutes"))["total"] or 0
 
 
 def current_streak(user, today):
-    """Consecutive days with at least one workout, ending today or yesterday."""
-    days = set(user.workout_logs.filter(date__lte=today).values_list("date", flat=True))
+    """Consecutive days with at least one workout, ending today or
+    yesterday."""
+    days = set(
+        user.workout_logs.filter(
+            date__lte=today).values_list(
+            "date", flat=True))
     day = today if today in days else today - timedelta(days=1)
     streak = 0
     while day in days:
@@ -46,6 +60,8 @@ def current_streak(user, today):
 
 
 def latest_logged_plan(user):
-    """The plan on the user's most recent plan-linked workout ("Today's Plan")."""
-    log = user.workout_logs.filter(plan__isnull=False).select_related("plan").first()
+    """The plan on the user's most recent plan-linked workout
+    ("Today's Plan")."""
+    log = user.workout_logs.filter(
+        plan__isnull=False).select_related("plan").first()
     return log.plan if log else None

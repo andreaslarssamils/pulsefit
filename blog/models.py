@@ -22,7 +22,10 @@ class BlogPost(models.Model):
         blank=True,
         related_name="blog_posts",
     )
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="draft")
     published_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -34,11 +37,12 @@ class BlogPost(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        # Auto-fill slug for seeded/programmatic rows (admin also prepopulates it).
+        # Auto-fill slug for seeded/programmatic rows (admin also prepopulates
+        # it).
         if not self.slug:
             self.slug = slugify(self.title)
-        # Stamp the publish time the first time the post goes live so the public
-        # list can order by a real publication date.
+        # Stamp the publish time the first time the post goes live so the
+        # public list can order by a real publication date.
         if self.status == "published" and self.published_at is None:
             self.published_at = timezone.now()
         super().save(*args, **kwargs)

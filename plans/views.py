@@ -7,7 +7,9 @@ from .models import Plan, PlanCategory
 
 
 class PlanListView(ListView):
-    """Public catalog of active plans (US-05). Category filtering is client-side."""
+    """Public catalog of active plans.
+    Category filtering is client-side.
+    """
 
     template_name = "plans/plan_list.html"
     context_object_name = "plans"
@@ -22,7 +24,7 @@ class PlanListView(ListView):
 
 
 class PlanDetailView(DetailView):
-    """Slug-based plan detail page (US-06). Inactive plans 404."""
+    """Slug-based plan detail page. Inactive plans 404."""
 
     template_name = "plans/plan_detail.html"
     context_object_name = "plan"

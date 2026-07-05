@@ -49,7 +49,9 @@ class FeedViewTests(TestCase):
         CommunityPost.objects.create(user=user, body="Fresh update")
         resp = self.client.get(reverse("community:feed"))
         content = resp.content.decode()
-        self.assertLess(content.index("Fresh update"), content.index("Older update"))
+        self.assertLess(
+            content.index("Fresh update"),
+            content.index("Older update"))
 
     def test_post_shows_author_name_and_timestamp(self):
         user = make_user(first_name="Anna", last_name="Berg")
@@ -96,8 +98,14 @@ class FeedViewTests(TestCase):
         CommunityPost.objects.create(user=anna, body="Two")
         CommunityPost.objects.create(user=bjorn, body="Three")
         resp = self.client.get(reverse("community:feed"))
-        self.assertContains(resp, '<div class="stat-tile__value">2</div>', html=True)
-        self.assertContains(resp, '<div class="stat-tile__value">3</div>', html=True)
+        self.assertContains(
+            resp,
+            '<div class="stat-tile__value">2</div>',
+            html=True)
+        self.assertContains(
+            resp,
+            '<div class="stat-tile__value">3</div>',
+            html=True)
         self.assertContains(resp, "Members")
         self.assertContains(resp, "Posts")
         self.assertContains(resp, "New this week")
@@ -117,11 +125,12 @@ class PostCreateViewTests(TestCase):
         self.assertFalse(CommunityPost.objects.exists())
 
     def test_post_creates_linked_to_user_with_message(self):
-        # US-23: post is associated with request.user; success message on redirect.
+        # US-23: post is associated with request.user; success message on
+        # redirect.
         self.client.force_login(self.user)
         resp = self.client.post(
-            reverse("community:post_create"), {"body": "First 10k done!"}, follow=True
-        )
+            reverse("community:post_create"), {
+                "body": "First 10k done!"}, follow=True)
         self.assertRedirects(resp, reverse("community:feed"))
         post = CommunityPost.objects.get()
         self.assertEqual(post.user, self.user)
@@ -130,18 +139,24 @@ class PostCreateViewTests(TestCase):
 
     def test_new_post_appears_at_top_of_feed(self):
         # US-23: after posting, the new post appears at the top of the feed.
-        CommunityPost.objects.create(user=make_user("old@example.com"), body="Old news")
+        CommunityPost.objects.create(
+            user=make_user("old@example.com"),
+            body="Old news")
         self.client.force_login(self.user)
         resp = self.client.post(
-            reverse("community:post_create"), {"body": "Hot off the press"}, follow=True
-        )
+            reverse("community:post_create"), {
+                "body": "Hot off the press"}, follow=True)
         content = resp.content.decode()
-        self.assertLess(content.index("Hot off the press"), content.index("Old news"))
+        self.assertLess(
+            content.index("Hot off the press"),
+            content.index("Old news"))
 
     def test_empty_body_rejected(self):
         # US-23: post requires a non-empty body.
         self.client.force_login(self.user)
-        resp = self.client.post(reverse("community:post_create"), {"body": "   "})
+        resp = self.client.post(
+            reverse("community:post_create"), {
+                "body": "   "})
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "field-error")
         self.assertFalse(CommunityPost.objects.exists())
@@ -151,8 +166,11 @@ class PostCreateViewTests(TestCase):
 class PostDeleteViewTests(TestCase):
     def setUp(self):
         self.author = make_user("author@example.com")
-        self.post = CommunityPost.objects.create(user=self.author, body="My own post")
-        self.delete_url = reverse("community:post_delete", kwargs={"pk": self.post.pk})
+        self.post = CommunityPost.objects.create(
+            user=self.author, body="My own post")
+        self.delete_url = reverse(
+            "community:post_delete", kwargs={
+                "pk": self.post.pk})
 
     def test_login_required(self):
         resp = self.client.get(self.delete_url)
@@ -162,7 +180,10 @@ class PostDeleteViewTests(TestCase):
     def test_delete_button_visible_only_to_author(self):
         # US-24: delete button is visible only to the post author.
         self.client.force_login(self.author)
-        self.assertContains(self.client.get(reverse("community:feed")), self.delete_url)
+        self.assertContains(
+            self.client.get(
+                reverse("community:feed")),
+            self.delete_url)
 
         self.client.force_login(make_user("other@example.com"))
         self.assertNotContains(
@@ -181,7 +202,9 @@ class PostDeleteViewTests(TestCase):
         self.client.force_login(self.author)
         resp = self.client.post(self.delete_url, follow=True)
         self.assertRedirects(resp, reverse("community:feed"))
-        self.assertFalse(CommunityPost.objects.filter(pk=self.post.pk).exists())
+        self.assertFalse(
+            CommunityPost.objects.filter(
+                pk=self.post.pk).exists())
         self.assertContains(resp, "deleted")
 
     def test_other_user_gets_404(self):
@@ -202,5 +225,6 @@ class CommunityAdminTests(TestCase):
         self.client.force_login(admin)
 
     def test_communitypost_changelist_loads(self):
-        resp = self.client.get(reverse("admin:community_communitypost_changelist"))
+        resp = self.client.get(
+            reverse("admin:community_communitypost_changelist"))
         self.assertEqual(resp.status_code, 200)

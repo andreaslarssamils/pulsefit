@@ -117,8 +117,9 @@ class CartTests(TestCase):
 
     def test_reading_cart_does_not_persist_empty_cart_for_new_visitor(self):
         # The nav badge builds a Cart on every request; merely reading it must
-        # not write an empty cart into the session (which would force a DB-backed
-        # session + cookie for every anonymous visitor, defeating lazy sessions).
+        # not write an empty cart into the session (which would force a
+        # DB-backed session + cookie for every anonymous visitor,
+        # defeating lazy sessions).
         request = make_request()
         cart = Cart(request)
         self.assertEqual(cart.count(), 0)
@@ -139,11 +140,21 @@ class AddToCartViewTests(TestCase):
         plan = make_plan()
         resp = self.client.post(reverse("cart:add", args=["plan", plan.id]))
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(self.client.session["cart"], {f"plan:{plan.id}": {"qty": 1}})
+        self.assertEqual(
+            self.client.session["cart"], {
+                f"plan:{
+                    plan.id}": {
+                    "qty": 1}})
 
     def test_add_to_cart_shows_success_message(self):
         plan = make_plan(title="12 Week Strength")
-        resp = self.client.post(reverse("cart:add", args=["plan", plan.id]), follow=True)
+        resp = self.client.post(
+            reverse(
+                "cart:add",
+                args=[
+                    "plan",
+                    plan.id]),
+            follow=True)
         messages = list(resp.context["messages"])
         self.assertIn("12 Week Strength", str(messages[0]))
 
@@ -186,14 +197,24 @@ class UpdateRemoveCartViewTests(TestCase):
     def test_update_cart_changes_quantity(self):
         product = make_product()
         self.client.post(reverse("cart:add", args=["product", product.id]))
-        self.client.post(reverse("cart:update", args=["product", product.id]), {"qty": 3})
-        self.assertEqual(self.client.session["cart"][f"product:{product.id}"]["qty"], 3)
+        self.client.post(
+            reverse(
+                "cart:update", args=[
+                    "product", product.id]), {
+                "qty": 3})
+        self.assertEqual(
+            self.client.session["cart"][f"product:{product.id}"]["qty"], 3)
 
     def test_update_cart_ignores_non_numeric_qty(self):
         product = make_product()
         self.client.post(reverse("cart:add", args=["product", product.id]))
-        self.client.post(reverse("cart:update", args=["product", product.id]), {"qty": "abc"})
-        self.assertEqual(self.client.session["cart"][f"product:{product.id}"]["qty"], 1)
+        self.client.post(
+            reverse(
+                "cart:update", args=[
+                    "product", product.id]), {
+                "qty": "abc"})
+        self.assertEqual(
+            self.client.session["cart"][f"product:{product.id}"]["qty"], 1)
 
     def test_remove_from_cart_drops_item(self):
         product = make_product()

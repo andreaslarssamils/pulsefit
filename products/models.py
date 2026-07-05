@@ -4,7 +4,9 @@ from django.utils.text import slugify
 
 
 class ProductCategory(models.Model):
-    """Grouping for products (e.g. Exercise, Nutrition, Merch); drives shop filter tabs."""
+    """Grouping for products (e.g. Exercise,
+    Nutrition, Merch); drives shop filter tabs.
+    """
 
     name = models.CharField(max_length=80)
     slug = models.SlugField(max_length=90, unique=True)
@@ -18,7 +20,7 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    """A shop product shown in the catalog (US-07/US-08)."""
+    """A shop product shown in the catalog """
 
     category = models.ForeignKey(
         ProductCategory, on_delete=models.PROTECT, related_name="products"
@@ -30,7 +32,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    # Digital products (downloads) skip shipping-address collection at checkout.
+    # Digital products (downloads) skip shipping-address collection at
+    # checkout.
     is_digital = models.BooleanField(default=False)
 
     class Meta:
@@ -44,7 +47,8 @@ class Product(models.Model):
         return self.stock > 0
 
     def save(self, *args, **kwargs):
-        # prepopulated_fields only fills the slug in the admin; do it here too so
+        # prepopulated_fields only fills the slug in the admin; do it here
+        # too so
         # seeded/programmatic rows get a slug.
         if not self.slug:
             self.slug = slugify(self.name)

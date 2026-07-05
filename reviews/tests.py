@@ -28,10 +28,14 @@ def make_user(email="member@example.com", **kwargs):
 
 
 def make_plan(title="12 Week Strength", **kwargs):
-    cat, _ = PlanCategory.objects.get_or_create(name="Exercise", slug="exercise")
+    cat, _ = PlanCategory.objects.get_or_create(
+        name="Exercise", slug="exercise")
     return Plan.objects.create(
-        category=cat, title=title, description="d", price=Decimal("49.00"), **kwargs
-    )
+        category=cat,
+        title=title,
+        description="d",
+        price=Decimal("49.00"),
+        **kwargs)
 
 
 def make_product(name="Resistance Bands", **kwargs):
@@ -65,6 +69,7 @@ def grant_plan(user, plan):
 # --------------------------------------------------------------------------- #
 class ReviewConstraintTests(TestCase):
     """Test review model constraints."""
+
     def test_rejects_both_targets(self):
         # Key decision 1: exactly one of plan/product (mirrors OrderItem).
         with self.assertRaises(IntegrityError):
@@ -86,27 +91,45 @@ class ReviewConstraintTests(TestCase):
         Review.objects.create(user=user, plan=plan, rating=5, body="great")
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                Review.objects.create(user=user, plan=plan, rating=3, body="again")
+                Review.objects.create(
+                    user=user, plan=plan, rating=3, body="again")
 
     def test_one_review_per_user_per_product(self):
         """ One review per user per target."""
         user, product = make_user(), make_product()
-        Review.objects.create(user=user, product=product, rating=5, body="great")
+        Review.objects.create(
+            user=user,
+            product=product,
+            rating=5,
+            body="great")
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                Review.objects.create(user=user, product=product, rating=3, body="again")
+                Review.objects.create(
+                    user=user, product=product, rating=3, body="again")
 
     def test_two_users_can_review_same_plan(self):
         plan = make_plan()
-        Review.objects.create(user=make_user("a@x.com"), plan=plan, rating=5, body="a")
-        Review.objects.create(user=make_user("b@x.com"), plan=plan, rating=4, body="b")
+        Review.objects.create(
+            user=make_user("a@x.com"),
+            plan=plan,
+            rating=5,
+            body="a")
+        Review.objects.create(
+            user=make_user("b@x.com"),
+            plan=plan,
+            rating=4,
+            body="b")
         self.assertEqual(Review.objects.filter(plan=plan).count(), 2)
 
     def test_same_user_can_review_a_plan_and_a_product(self):
         # Conditional unique constraints must not collide across target types.
         user, plan, product = make_user(), make_plan(), make_product()
         Review.objects.create(user=user, plan=plan, rating=5, body="plan")
-        Review.objects.create(user=user, product=product, rating=4, body="prod")
+        Review.objects.create(
+            user=user,
+            product=product,
+            rating=4,
+            body="prod")
         self.assertEqual(Review.objects.filter(user=user).count(), 2)
 
 
@@ -164,8 +187,8 @@ class ReviewCreateViewTests(TestCase):
     def test_entitled_user_creates_review(self):
         self.client.force_login(self.user)
         resp = self.client.post(
-            self.add_url, {"rating": 5, "body": "Transformative plan"}, follow=True
-        )
+            self.add_url, {
+                "rating": 5, "body": "Transformative plan"}, follow=True)
         self.assertRedirects(resp, self.plan.get_absolute_url())
         review = Review.objects.get()
         self.assertEqual(review.user, self.user)
@@ -186,7 +209,11 @@ class ReviewCreateViewTests(TestCase):
         resp = self.client.post(
             self.add_url, {"rating": 5, "body": "Changed my mind"}, follow=True
         )
-        self.assertEqual(Review.objects.filter(user=self.user, plan=self.plan).count(), 1)
+        self.assertEqual(
+            Review.objects.filter(
+                user=self.user,
+                plan=self.plan).count(),
+            1)
         review = Review.objects.get()
         self.assertEqual(review.rating, 5)
         self.assertEqual(review.body, "Changed my mind")
@@ -199,7 +226,10 @@ class ReviewCreateViewTests(TestCase):
         make_order(buyer, product, status="paid")
         self.client.force_login(buyer)
         self.client.post(url, {"rating": 4, "body": "Sturdy bands"})
-        self.assertTrue(Review.objects.filter(product=product, user=buyer).exists())
+        self.assertTrue(
+            Review.objects.filter(
+                product=product,
+                user=buyer).exists())
 
     def test_product_review_blocked_without_order(self):
         product = make_product()
@@ -243,8 +273,16 @@ class DetailPageReviewIntegrationTests(TestCase):
     def test_plan_detail_shows_average_and_reviews(self):
         # US-28: average rating + reviews are displayed on the detail page.
         plan = make_plan()
-        Review.objects.create(user=make_user("a@x.com"), plan=plan, rating=4, body="Solid programming")
-        Review.objects.create(user=make_user("b@x.com"), plan=plan, rating=2, body="Too intense")
+        Review.objects.create(
+            user=make_user("a@x.com"),
+            plan=plan,
+            rating=4,
+            body="Solid programming")
+        Review.objects.create(
+            user=make_user("b@x.com"),
+            plan=plan,
+            rating=2,
+            body="Too intense")
         resp = self.client.get(plan.get_absolute_url())
         self.assertContains(resp, "3.0")           # (4 + 2) / 2
         self.assertContains(resp, "(2)")
@@ -258,17 +296,27 @@ class DetailPageReviewIntegrationTests(TestCase):
         self.client.force_login(user)
         resp = self.client.get(plan.get_absolute_url())
         self.assertContains(resp, 'name="body"')
-        self.assertContains(resp, reverse("reviews:add", args=["plan", plan.id]))
+        self.assertContains(
+            resp, reverse(
+                "reviews:add", args=[
+                    "plan", plan.id]))
 
     def test_plan_detail_hides_form_for_non_entitled_user(self):
         plan = make_plan()
         self.client.force_login(make_user())
         resp = self.client.get(plan.get_absolute_url())
-        self.assertNotContains(resp, reverse("reviews:add", args=["plan", plan.id]))
+        self.assertNotContains(
+            resp, reverse(
+                "reviews:add", args=[
+                    "plan", plan.id]))
 
     def test_product_detail_shows_average(self):
         product = make_product()
-        Review.objects.create(user=make_user("c@x.com"), product=product, rating=5, body="Great bands")
+        Review.objects.create(
+            user=make_user("c@x.com"),
+            product=product,
+            rating=5,
+            body="Great bands")
         resp = self.client.get(product.get_absolute_url())
         self.assertContains(resp, "Great bands")
         self.assertContains(resp, "(1)")

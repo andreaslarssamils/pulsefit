@@ -10,8 +10,10 @@ from .services import AlreadySubscribed, NewsletterError, subscribe_email
 def _redirect_back(request, default="/"):
     referer = request.META.get("HTTP_REFERER")
     if referer and url_has_allowed_host_and_scheme(
-        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
-    ):
+            referer,
+            allowed_hosts={
+                request.get_host()},
+            require_https=request.is_secure()):
         return redirect(referer)
     return redirect(default)
 
@@ -26,9 +28,13 @@ def subscribe(request):
     try:
         subscribe_email(form.cleaned_data["email"])
     except AlreadySubscribed:
-        messages.info(request, "You're already subscribed — thanks for being with us!")
+        messages.info(
+            request,
+            "You're already subscribed — thanks for being with us!")
     except NewsletterError:
-        messages.error(request, "Something went wrong. Please try again later.")
+        messages.error(
+            request,
+            "Something went wrong. Please try again later.")
     else:
         messages.success(
             request, "You're subscribed! Check your inbox for fitness tips."

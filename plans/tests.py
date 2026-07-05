@@ -11,11 +11,17 @@ from plans.models import Plan, PlanAccess, PlanCategory
 
 User = get_user_model()
 
-# Plain static storage so rendering pages that call {% static %} does not depend
-# on `collectstatic` having built the manifest first (mirrors accounts/tests.py).
+# Plain static storage so rendering pages that call {% static %}
+# does not depend
+# on `collectstatic` having built the manifest first (mirrors
+# accounts/tests.py).
 SIMPLE_STATIC_STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
 
 
@@ -50,7 +56,8 @@ class PlanModelTests(TestCase):
         self.assertEqual(plan.slug, "custom-slug")
 
     def test_str_is_title(self):
-        self.assertEqual(str(make_plan(title="Mobility Reset")), "Mobility Reset")
+        self.assertEqual(
+            str(make_plan(title="Mobility Reset")), "Mobility Reset")
 
     def test_get_absolute_url_uses_slug(self):
         plan = make_plan(title="Mobility Reset")
@@ -110,11 +117,19 @@ class PlanDetailViewTests(TestCase):
 
     def test_detail_404_for_inactive_plan(self):
         plan = make_plan(slug="hidden-plan", is_active=False)
-        resp = self.client.get(reverse("plans:detail", kwargs={"slug": plan.slug}))
+        resp = self.client.get(
+            reverse(
+                "plans:detail",
+                kwargs={
+                    "slug": plan.slug}))
         self.assertEqual(resp.status_code, 404)
 
     def test_detail_404_for_unknown_slug(self):
-        resp = self.client.get(reverse("plans:detail", kwargs={"slug": "nope"}))
+        resp = self.client.get(
+            reverse(
+                "plans:detail",
+                kwargs={
+                    "slug": "nope"}))
         self.assertEqual(resp.status_code, 404)
 
     def test_premium_plan_shows_go_premium_cta(self):
@@ -135,7 +150,7 @@ class PlanDetailViewTests(TestCase):
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
 class PlanAdminTests(TestCase):
-    """US-29: catalog models are manageable from Django admin."""
+    """Catalog models are manageable from Django admin."""
 
     def setUp(self):
         admin = get_user_model().objects.create_superuser(
@@ -157,30 +172,47 @@ class PlanAdminTests(TestCase):
 
 
 class PlanAccessModelTests(TestCase):
+    """PlanAccess rows gate access to premium content."""
     def setUp(self):
-        self.cat = PlanCategory.objects.create(name="Exercise", slug="exercise")
+        self.cat = PlanCategory.objects.create(
+            name="Exercise", slug="exercise")
         self.plan = Plan.objects.create(
-            category=self.cat, title="12 Week Strength", description="x", price="49.00"
-        )
-        self.user = User.objects.create_user(email="a@example.com", password="pw12345!")
+            category=self.cat,
+            title="12 Week Strength",
+            description="x",
+            price="49.00")
+        self.user = User.objects.create_user(
+            email="a@example.com", password="pw12345!")
 
     def test_has_access_false_without_row(self):
         self.assertFalse(has_plan_access(self.user, self.plan))
 
     def test_has_access_true_with_purchase_row(self):
-        PlanAccess.objects.create(user=self.user, plan=self.plan, source="purchase")
+        PlanAccess.objects.create(
+            user=self.user,
+            plan=self.plan,
+            source="purchase")
         self.assertTrue(has_plan_access(self.user, self.plan))
 
     def test_has_access_true_with_subscription_row(self):
-        PlanAccess.objects.create(user=self.user, plan=self.plan, source="subscription")
+        PlanAccess.objects.create(
+            user=self.user,
+            plan=self.plan,
+            source="subscription")
         self.assertTrue(has_plan_access(self.user, self.plan))
 
     def test_has_access_false_for_anonymous(self):
-        PlanAccess.objects.create(user=self.user, plan=self.plan, source="purchase")
+        PlanAccess.objects.create(
+            user=self.user,
+            plan=self.plan,
+            source="purchase")
         self.assertFalse(has_plan_access(AnonymousUser(), self.plan))
 
     def test_one_access_row_per_user_plan(self):
-        PlanAccess.objects.create(user=self.user, plan=self.plan, source="purchase")
+        PlanAccess.objects.create(
+            user=self.user,
+            plan=self.plan,
+            source="purchase")
         with self.assertRaises(IntegrityError), transaction.atomic():
             PlanAccess.objects.create(
                 user=self.user, plan=self.plan, source="subscription"
@@ -189,8 +221,12 @@ class PlanAccessModelTests(TestCase):
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
 class PlanDetailGatingTests(TestCase):
+    """ Premium plans show "Go Premium"
+    CTA to users without access, and
+    """
     def setUp(self):
-        self.cat = PlanCategory.objects.create(name="Exercise", slug="exercise")
+        self.cat = PlanCategory.objects.create(
+            name="Exercise", slug="exercise")
         self.premium = Plan.objects.create(
             category=self.cat,
             title="Elite",
@@ -207,14 +243,23 @@ class PlanDetailGatingTests(TestCase):
             price="49.00",
             premium_only=False,
         )
-        self.user = User.objects.create_user(email="a@example.com", password="pw12345!")
+        self.user = User.objects.create_user(
+            email="a@example.com", password="pw12345!")
 
     def test_premium_without_access_shows_go_premium(self):
-        resp = self.client.get(reverse("plans:detail", kwargs={"slug": "elite"}))
+        resp = self.client.get(
+            reverse(
+                "plans:detail",
+                kwargs={
+                    "slug": "elite"}))
         self.assertContains(resp, "Go Premium")
 
     def test_nonpremium_without_access_shows_add_to_cart(self):
-        resp = self.client.get(reverse("plans:detail", kwargs={"slug": "strength"}))
+        resp = self.client.get(
+            reverse(
+                "plans:detail",
+                kwargs={
+                    "slug": "strength"}))
         self.assertContains(resp, "Add to Cart")
 
     def test_with_access_shows_access_content(self):
@@ -222,5 +267,9 @@ class PlanDetailGatingTests(TestCase):
             user=self.user, plan=self.premium, source="subscription"
         )
         self.client.force_login(self.user)
-        resp = self.client.get(reverse("plans:detail", kwargs={"slug": "elite"}))
+        resp = self.client.get(
+            reverse(
+                "plans:detail",
+                kwargs={
+                    "slug": "elite"}))
         self.assertContains(resp, "Access Content")

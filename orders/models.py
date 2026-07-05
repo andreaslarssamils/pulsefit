@@ -13,10 +13,14 @@ class Order(models.Model):
     ]
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="orders"
-    )
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="orders")
     order_number = models.CharField(max_length=20, unique=True, editable=False)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending")
     total = models.DecimalField(max_digits=9, decimal_places=2)
     shipping_name = models.CharField(max_length=200, blank=True)
     shipping_address_line1 = models.CharField(max_length=200, blank=True)
@@ -41,7 +45,10 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="items")
     plan = models.ForeignKey(
         "plans.Plan", on_delete=models.PROTECT, null=True, blank=True
     )

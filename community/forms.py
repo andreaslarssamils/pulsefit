@@ -14,7 +14,6 @@ class CommunityPostForm(forms.ModelForm):
             "body": forms.Textarea(
                 attrs={
                     "rows": 3,
-                    "placeholder": "Share your progress, a tip or a question...",
-                }
-            )
-        }
+                    "placeholder": "Share your progress, a tip "
+                    "or a question...",
+                })}

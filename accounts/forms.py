@@ -9,7 +9,10 @@ class CustomSignupForm(forms.Form):
     name = forms.CharField(
         max_length=150,
         label="Full Name",
-        widget=forms.TextInput(attrs={"placeholder": "Your name", "autofocus": True}),
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Your name",
+                "autofocus": True}),
     )
 
     field_order = ["name", "email", "password1", "password2"]

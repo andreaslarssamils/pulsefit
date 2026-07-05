@@ -15,8 +15,9 @@ class Subscription(models.Model):
     ACCESS_GRANTING = {"active", "trialing", "past_due"}
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscription"
-    )
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="subscription")
     stripe_subscription_id = models.CharField(max_length=255, unique=True)
     stripe_customer_id = models.CharField(max_length=255, db_index=True)
     status = models.CharField(max_length=32, choices=STATUS_CHOICES)

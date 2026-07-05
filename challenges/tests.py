@@ -11,12 +11,20 @@ User = get_user_model()
 
 # Plain static storage so page renders don't need a built manifest.
 SIMPLE_STATIC_STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
 
 
-def make_challenge(title="Summer Shred", offset_start=-1, offset_end=1, **kwargs):
+def make_challenge(
+        title="Summer Shred",
+        offset_start=-1,
+        offset_end=1,
+        **kwargs):
     today = timezone.localdate()
     kwargs.setdefault("description", "A group challenge.")
     kwargs.setdefault("is_active", True)
@@ -30,10 +38,18 @@ def make_challenge(title="Summer Shred", offset_start=-1, offset_end=1, **kwargs
 
 class ChallengeModelTests(TestCase):
     def test_status_active_when_today_in_range(self):
-        self.assertEqual(make_challenge(offset_start=-1, offset_end=1).status, "active")
+        self.assertEqual(
+            make_challenge(
+                offset_start=-1,
+                offset_end=1).status,
+            "active")
 
     def test_status_active_on_boundary_dates(self):
-        self.assertEqual(make_challenge(offset_start=0, offset_end=0).status, "active")
+        self.assertEqual(
+            make_challenge(
+                offset_start=0,
+                offset_end=0).status,
+            "active")
 
     def test_status_upcoming_when_start_in_future(self):
         self.assertEqual(
@@ -60,14 +76,18 @@ class ChallengeAdminTests(TestCase):
         self.client.force_login(admin)
 
     def test_changelist_loads(self):
-        resp = self.client.get(reverse("admin:challenges_challenge_changelist"))
+        resp = self.client.get(
+            reverse("admin:challenges_challenge_changelist"))
         self.assertEqual(resp.status_code, 200)
 
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
 class ChallengeListViewTests(TestCase):
     def test_list_is_public(self):
-        self.assertEqual(self.client.get(reverse("challenges:list")).status_code, 200)
+        self.assertEqual(
+            self.client.get(
+                reverse("challenges:list")).status_code,
+            200)
 
     def test_only_active_shown(self):
         make_challenge(title="Live Challenge", is_active=True)
@@ -78,7 +98,10 @@ class ChallengeListViewTests(TestCase):
 
     def test_active_challenge_shows_status_badge(self):
         make_challenge(title="Ongoing", offset_start=-1, offset_end=5)
-        self.assertContains(self.client.get(reverse("challenges:list")), "Active")
+        self.assertContains(
+            self.client.get(
+                reverse("challenges:list")),
+            "Active")
 
     def test_empty_state(self):
         self.assertContains(

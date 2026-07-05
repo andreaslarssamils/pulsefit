@@ -13,8 +13,12 @@ MAILCHIMP = dict(
 )
 
 VIEW_STATIC_STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
 
 
@@ -32,8 +36,8 @@ class SubscribeEmailTests(SimpleTestCase):
         )
         self.assertEqual(kwargs["auth"], ("anystring", "key-us1"))
         self.assertEqual(
-            kwargs["json"], {"email_address": "a@b.com", "status": "subscribed"}
-        )
+            kwargs["json"], {
+                "email_address": "a@b.com", "status": "subscribed"})
 
     @patch("newsletter.services.requests.post")
     def test_member_exists_raises_already_subscribed(self, mock_post):
@@ -57,9 +61,9 @@ class SubscribeEmailTests(SimpleTestCase):
 
 
 class SubscribeEmailUnconfiguredTests(SimpleTestCase):
-    @override_settings(
-        MAILCHIMP_API_KEY="", MAILCHIMP_AUDIENCE_ID="", MAILCHIMP_SERVER_PREFIX=""
-    )
+    @override_settings(MAILCHIMP_API_KEY="",
+                       MAILCHIMP_AUDIENCE_ID="",
+                       MAILCHIMP_SERVER_PREFIX="")
     @patch("newsletter.services.requests.post")
     def test_missing_config_raises_without_calling_mailchimp(self, mock_post):
         with self.assertRaises(NewsletterError):

@@ -61,4 +61,6 @@ def post_delete(request, pk):
         post.delete()
         messages.success(request, "Post deleted.")
         return redirect("community:feed")
-    return render(request, "community/post_confirm_delete.html", {"post": post})
+    return render(request,
+                  "community/post_confirm_delete.html",
+                  {"post": post})

@@ -7,8 +7,9 @@ class WorkoutLog(models.Model):
     """A completed workout logged by a user (US-20)."""
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="workout_logs"
-    )
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="workout_logs")
     plan = models.ForeignKey(
         "plans.Plan",
         null=True,
@@ -17,7 +18,8 @@ class WorkoutLog(models.Model):
         related_name="workout_logs",
     )
     date = models.DateField()
-    duration_minutes = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    duration_minutes = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -28,7 +30,10 @@ class WorkoutLog(models.Model):
 
 
 class UserGoal(models.Model):
-    """A user's weekly workout target shown on the dashboard (US-21). One row per user."""
+    """A user's weekly workout target shown on the dashboard (US-21).
+
+    One row per user.
+    """
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="goal"

@@ -11,8 +11,9 @@ class Review(models.Model):
     """
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
-    )
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews")
     plan = models.ForeignKey(
         "plans.Plan",
         on_delete=models.CASCADE,

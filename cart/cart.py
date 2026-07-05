@@ -50,7 +50,8 @@ class Cart:
             item_id = int(item_id)
             qty = data["qty"]
             model = ITEM_MODELS.get(item_type)
-            obj = model.objects.filter(pk=item_id, is_active=True).first() if model else None
+            obj = model.objects.filter(
+                pk=item_id, is_active=True).first() if model else None
             if obj is None:
                 stale_keys.append(key)
                 continue

@@ -137,16 +137,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation."
+        "UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation."
+        "MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation."
+        "CommonPasswordValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation."
+        "NumericPasswordValidator",
     },
 ]
 
@@ -204,3 +208,10 @@ EMAIL_BACKEND = env.str(
 DEFAULT_FROM_EMAIL = env.str(
     "DEFAULT_FROM_EMAIL", default="PulseFit <no-reply@pulsefit.example.com>"
 )
+
+# Newsletter / Mailchimp (US-35). Empty defaults let signup fail gracefully
+# (services raises NewsletterError -> friendly message) instead of raising
+# AttributeError -> 500 when the integration is left unconfigured.
+MAILCHIMP_API_KEY = env.str("MAILCHIMP_API_KEY", default="")
+MAILCHIMP_AUDIENCE_ID = env.str("MAILCHIMP_AUDIENCE_ID", default="")
+MAILCHIMP_SERVER_PREFIX = env.str("MAILCHIMP_SERVER_PREFIX", default="")

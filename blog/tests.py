@@ -53,7 +53,10 @@ class BlogPostModelTests(TestCase):
 class BlogListViewTests(TestCase):
     def test_list_is_public(self):
         # blog is readable without signing in.
-        self.assertEqual(self.client.get(reverse("blog:list")).status_code, 200)
+        self.assertEqual(
+            self.client.get(
+                reverse("blog:list")).status_code,
+            200)
 
     def test_only_published_shown(self):
         make_post(title="Published Post", status="published")
@@ -66,14 +69,25 @@ class BlogListViewTests(TestCase):
         make_post(title="Older Article", status="published")
         make_post(title="Newer Article", status="published")
         content = self.client.get(reverse("blog:list")).content.decode()
-        self.assertLess(content.index("Newer Article"), content.index("Older Article"))
+        self.assertLess(
+            content.index("Newer Article"),
+            content.index("Older Article"))
 
     def test_excerpt_shown_on_card(self):
-        make_post(title="Has Excerpt", status="published", excerpt="A short teaser")
-        self.assertContains(self.client.get(reverse("blog:list")), "A short teaser")
+        make_post(
+            title="Has Excerpt",
+            status="published",
+            excerpt="A short teaser")
+        self.assertContains(
+            self.client.get(
+                reverse("blog:list")),
+            "A short teaser")
 
     def test_empty_state(self):
-        self.assertContains(self.client.get(reverse("blog:list")), "No posts yet")
+        self.assertContains(
+            self.client.get(
+                reverse("blog:list")),
+            "No posts yet")
 
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
@@ -94,7 +108,10 @@ class BlogDetailViewTests(TestCase):
     def test_draft_detail_404(self):
         # only published posts are visible.
         post = make_post(title="Not Yet", status="draft")
-        self.assertEqual(self.client.get(post.get_absolute_url()).status_code, 404)
+        self.assertEqual(
+            self.client.get(
+                post.get_absolute_url()).status_code,
+            404)
 
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)

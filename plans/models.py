@@ -55,7 +55,8 @@ class Plan(models.Model):
 
 
 class PlanAccess(models.Model):
-    SOURCE_CHOICES = [("subscription", "Subscription"), ("purchase", "Purchase")]
+    SOURCE_CHOICES = [("subscription", "Subscription"),
+                      ("purchase", "Purchase")]
 
     user = models.ForeignKey(
         settings. AUTH_USER_MODEL, on_delete=models.CASCADE,
@@ -75,4 +76,3 @@ class PlanAccess(models.Model):
 
     def __str__(self):
         return f"{self.user} → {self.plan} ({self.source})"
-
