@@ -1349,6 +1349,8 @@ events were replayed with the Stripe CLI.
 
 ## Code Validation
 
+### HTML Validation
+
 Pep8 was run using pycodestyle
 
 ![Screenshot of pycodestyle output](/screenshots/pycodestyle.png)
@@ -1392,6 +1394,14 @@ Blog Detail page were validated with the W3C HTML Validator
 Community page were validated with the W3C HTML Validator
 
 ![Screenshot of W3C HTML Validator output](/screenshots/community.png)
+
+Shop detail (review) page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/shop-detail-review.png)
+
+### CSS Validation
+
+![Screenshot of W3C CSS Validator output](/screenshots/css-validation.png)
 
 | Tool | Scope | Result |
 |---|---|---|
