@@ -67,7 +67,6 @@ Success: #22C55E
 Danger: #EF4444
 Accent Violent: #AB5CF6
 
-
 ### Typography
 
 Display & Headings: Sora weights 400-800
@@ -291,7 +290,6 @@ Staff manage the catalogue, orders and content from the Django admin.
 **500 – Server Error** · _US-37_
 ![Custom 500 page](/screenshots/45-500.png)
 
-
 ## EPIC 1 — Authentication & User Account
 
 ### US-01 - Register an account
@@ -301,7 +299,7 @@ Staff manage the catalogue, orders and content from the Django admin.
 **User Story**
 As a **visitor**, I can **register a new account with my name, email and password** so that **I can access member features and track my fitness journey**.
 
-**Acceptance Criteria**
+#### Acceptance Criteria
 
 - Registration form requires: Full Name, Email, Password, Confirm Password
 - Email must be unique — duplicate email shows a error message
@@ -309,7 +307,7 @@ As a **visitor**, I can **register a new account with my name, email and passwor
 - On success the user is automatically signed in and redirected to dashboard
 - "Sign in" link is visible on the registration page for existing users
 
-**Tasks**
+#### Tasks
 
 - Configure `django-allauth` with email as the primary identifier
 - Create `CustomUser` model extending `AbstractUser` with email `UNIQUE`
@@ -335,7 +333,7 @@ As a **registered user**, I can **sign in with my email and password** so that *
 - Successful login redirects to the dashboard
 - "Sign up free" link is visible for new visitors
 
-**Tasks**
+#### Tasks
 
 - Configure allauth login view with email backend
 - Build login template matching wireframe (Welcome back, email field, password + eye icon, Sign In CTA, OR divider, Sign up free link)
@@ -483,8 +481,6 @@ As a **visitor or member**, I can **view a product detail page** so that **I can
 
 ## EPIC 3 — Cart & Checkout
 
----
-
 ### US-09 - Add items to cart
 
 **Label:** `must-have` `epic: cart-checkout`
@@ -493,12 +489,14 @@ As a **visitor or member**, I can **view a product detail page** so that **I can
 As a **visitor or signed-in user**, I can **add plans and products to a cart** so that **I can purchase multiple items in one transaction**.
 
 **Acceptance Criteria**
+
 - Items can be added from both plan detail and product detail pages
 - Cart persists in the session (no login required to add items)
 - Cart icon in the nav shows the current item count
 - Adding the same item again increases the quantity
 
 **Tasks**
+
 - Implement session-based cart (`request.session['cart']`)
 - Build `add_to_cart` view for both plans and products
 - Update cart count in nav via template context processor
@@ -506,12 +504,14 @@ As a **visitor or signed-in user**, I can **add plans and products to a cart** s
 ---
 
 ### US-10 - View and edit cart
+
 **Label:** `must-have` `epic: cart-checkout`
 
 **User Story**
 As a **shopper**, I can **view my cart and update quantities or remove items** so that **I can finalise what I want to buy before paying**.
 
 **Acceptance Criteria**
+
 - Cart page lists each item with name, unit price, quantity, line total
 - Quantity can be increased or decreased
 - Items can be removed individually
@@ -519,6 +519,7 @@ As a **shopper**, I can **view my cart and update quantities or remove items** s
 - "Proceed to Checkout" CTA is visible
 
 **Tasks**
+
 - Build cart view rendering session data
 - Build `update_cart` and `remove_from_cart` views
 - Calculate and display order total
@@ -526,12 +527,14 @@ As a **shopper**, I can **view my cart and update quantities or remove items** s
 ---
 
 ### US-11 - Complete a one-time purchase checkout
+
 **Label:** `must-have` `epic: cart-checkout`
 
 **User Story**
 As a **shopper**, I can **pay for my cart via Stripe** so that **I receive digital access or physical items I have purchased**.
 
 **Acceptance Criteria**
+
 - Checkout flow collects shipping address (for physical products)
 - Payment is processed via Stripe Checkout or Payment Intents
 - Successful payment creates an `ORDER` and `ORDER_ITEM` record
@@ -539,6 +542,7 @@ As a **shopper**, I can **pay for my cart via Stripe** so that **I receive digit
 - Failed payment shows a clear error and does not create an order
 
 **Tasks**
+
 - Integrate Stripe (install `stripe`, add keys to environment)
 - Build checkout view and Stripe session creation
 - Build Stripe webhook handler for `checkout.session.completed`
@@ -548,16 +552,19 @@ As a **shopper**, I can **pay for my cart via Stripe** so that **I receive digit
 ---
 
 ### US-12 - Receive order confirmation email
+
 **Label:** `should-have` `epic: cart-checkout`
 
 **User Story**
 As a **customer who has just purchased**, I can **receive an order confirmation email** so that **I have a record of my purchase**.
 
 **Acceptance Criteria**
+
 - Confirmation email is sent after Stripe webhook confirms payment
 - Email includes: order number, item list, total paid, date
 
 **Tasks**
+
 - Build order confirmation email template
 - Trigger email send from webhook handler
 - Configure email backend for production (SendGrid / SES)
@@ -566,15 +573,15 @@ As a **customer who has just purchased**, I can **receive an order confirmation 
 
 ## EPIC 4 — Subscriptions
 
----
-
 ### US-13 - Subscribe to Premium plan
+
 **Label:** `must-have` `epic: subscriptions`
 
 **User Story**
 As a **registered user**, I can **subscribe to PulseFit Premium via Stripe** so that **I unlock all premium plans and content for a monthly fee**.
 
 **Acceptance Criteria**
+
 - Pricing page shows Free and Premium tiers clearly (Free $0 / Premium $19/mo)
 - "Go Premium" CTA initiates Stripe Subscription checkout
 - Successful subscription creates a `SUBSCRIPTION` record with `status='active'` and correct `plan_tier`
@@ -582,6 +589,7 @@ As a **registered user**, I can **subscribe to PulseFit Premium via Stripe** so 
 - User dashboard reflects premium status immediately
 
 **Tasks**
+
 - Create Stripe subscription product and price in Stripe dashboard
 - Build subscription checkout view
 - Handle `customer.subscription.created` webhook
@@ -591,34 +599,40 @@ As a **registered user**, I can **subscribe to PulseFit Premium via Stripe** so 
 ---
 
 ### US-14 - View current subscription status
+
 **Label:** `must-have` `epic: subscriptions`
 
 **User Story**
 As a **subscriber**, I can **see my subscription status on my dashboard** so that **I know when my subscription renews and whether it is active**.
 
 **Acceptance Criteria**
+
 - Dashboard shows: plan tier, status (active / cancelled), next renewal date
 - Cancelled subscriptions show end-of-access date (from `current_period_end`)
 
 **Tasks**
+
 - Read `SUBSCRIPTION` record and surface fields on dashboard template
 - Handle `cancel_at_period_end=True` display state
 
 ---
 
 ### US-15 - Cancel subscription
+
 **Label:** `should-have` `epic: subscriptions`
 
 **User Story**
 As a **subscriber**, I can **cancel my Premium subscription** so that **it does not renew at the end of the current period**.
 
 **Acceptance Criteria**
+
 - Cancel option is available from the dashboard
 - Cancellation sets `cancel_at_period_end=True` via Stripe API
 - User retains access until `current_period_end`
 - Dashboard reflects "Cancels on [date]" state
 
 **Tasks**
+
 - Build cancel subscription view calling Stripe API
 - Handle `customer.subscription.updated` webhook
 - Update `SUBSCRIPTION.cancel_at_period_end` and `status` fields
@@ -626,17 +640,20 @@ As a **subscriber**, I can **cancel my Premium subscription** so that **it does 
 ---
 
 ### US-16 - Subscription renewal handled automatically
+
 **Label:** `must-have` `epic: subscriptions`
 
 **User Story**
 As a **subscriber**, my **subscription renews automatically each month** so that **my premium access continues without manual action**.
 
 **Acceptance Criteria**
+
 - `invoice.payment_succeeded` webhook updates `current_period_end`
 - `invoice.payment_failed` webhook sets subscription `status='past_due'`
 - Access is revoked when status transitions to `cancelled` or `unpaid`
 
 **Tasks**
+
 - Handle `invoice.payment_succeeded` webhook
 - Handle `invoice.payment_failed` webhook
 - Write access revocation logic on `customer.subscription.deleted`
@@ -648,17 +665,20 @@ As a **subscriber**, my **subscription renews automatically each month** so that
 ---
 
 ### US-17 - Access premium plan content as a subscriber
+
 **Label:** `must-have` `epic: content-gating`
 
 **User Story**
 As a **Premium subscriber**, I can **access all premium plan content** so that **I get full value from my subscription**.
 
 **Acceptance Criteria**
+
 - Plans with `premium_only=True` are unlocked for active subscribers
 - `PLAN_ACCESS` table entry with `source='subscription'` grants access
 - Non-subscribers see a paywall/upsell instead of the content
 
 **Tasks**
+
 - Write `has_plan_access(user, plan)` helper checking `PLAN_ACCESS`
 - Apply helper in plan detail view to gate content display
 - Build upsell/paywall component for non-subscribers
@@ -666,17 +686,20 @@ As a **Premium subscriber**, I can **access all premium plan content** so that *
 ---
 
 ### US-18 - Access a plan purchased individually
+
 **Label:** `must-have` `epic: content-gating`
 
 **User Story**
 As a **member who has purchased a plan one-time**, I can **access that specific plan's content** so that **I benefit from my individual purchase**.
 
 **Acceptance Criteria**
+
 - Completing checkout for a plan creates `PLAN_ACCESS` with `source='purchase'`
 - Only the purchased plan is accessible — not all premium plans
 - Access is permanent (not tied to subscription status)
 
 **Tasks**
+
 - Write `PLAN_ACCESS` creation logic in Stripe webhook for one-time plan purchases
 - Ensure `has_plan_access` handles both `source='subscription'` and `source='purchase'`
 
@@ -687,12 +710,14 @@ As a **member who has purchased a plan one-time**, I can **access that specific 
 ---
 
 ### US-19 - View personal dashboard
+
 **Label:** `must-have` `epic: dashboard`
 
 **User Story**
 As a **signed-in user**, I can **see my personal dashboard** so that **I get an overview of my activity, plans, and subscription at a glance**.
 
 **Acceptance Criteria**
+
 - Dashboard shows: weekly workouts completed, total minutes logged, current streak, goal completion %
 - "Today's Plan" section shows current active plan or "No workout scheduled" empty state
 - "Weekly Progress" section shows progress toward `USER_GOAL.weekly_workouts_target`
@@ -700,6 +725,7 @@ As a **signed-in user**, I can **see my personal dashboard** so that **I get an 
 - Quick Actions shortcut links are present
 
 **Tasks**
+
 - Build `DashboardView` with `@login_required`
 - Query `WORKOUT_LOG` for current week's entries per user
 - Query `USER_GOAL` for target vs. actual
@@ -709,17 +735,20 @@ As a **signed-in user**, I can **see my personal dashboard** so that **I get an 
 ---
 
 ### US-20 - Log a workout
+
 **Label:** `must-have` `epic: dashboard`
 
 **User Story**
 As a **signed-in user**, I can **log a completed workout** so that **my progress is tracked against my weekly goal**.
 
 **Acceptance Criteria**
+
 - Log form captures: plan (optional), date, duration in minutes
 - Logged workouts appear in the Weekly Progress section
 - Logging a workout updates the completion percentage on the dashboard
 
 **Tasks**
+
 - Build `WorkoutLogCreateView`
 - Associate log entry with `user` and optionally `plan_id`
 - Recalculate weekly progress in dashboard context
@@ -727,17 +756,20 @@ As a **signed-in user**, I can **log a completed workout** so that **my progress
 ---
 
 ### US-21 - Set a weekly workout goal
+
 **Label:** `should-have` `epic: dashboard`
 
 **User Story**
 As a **signed-in user**, I can **set a weekly workout target** so that **the dashboard tracks my progress toward that goal**.
 
 **Acceptance Criteria**
+
 - User can enter a number of workouts per week (e.g. 4)
 - Goal is saved to `USER_GOAL` table
 - Dashboard progress bar reflects the target
 
 **Tasks**
+
 - Build goal form (or inline edit on dashboard)
 - Create or update `USER_GOAL` record for the user
 - Use `weekly_workouts_target` in dashboard progress calculation
@@ -749,12 +781,14 @@ As a **signed-in user**, I can **set a weekly workout target** so that **the das
 ---
 
 ### US-22 - View community feed
+
 **Label:** `must-have` `epic: community`
 
 **User Story**
 As a **visitor**, I can **browse the community feed** so that **I can see what members are sharing before deciding to join**.
 
 **Acceptance Criteria**
+
 - Community feed is publicly visible (read-only for visitors)
 - Posts are shown in reverse chronological order
 - Each post shows: author name, body text, timestamp
@@ -762,6 +796,7 @@ As a **visitor**, I can **browse the community feed** so that **I can see what m
 - Empty state is shown if no posts exist yet
 
 **Tasks**
+
 - Build `CommunityFeedView` querying `COMMUNITY_POST` ordered by `-created_at`
 - Build post card component
 - Add signed-out CTA card above the feed
@@ -770,18 +805,21 @@ As a **visitor**, I can **browse the community feed** so that **I can see what m
 ---
 
 ### US-23 - Create a community post
+
 **Label:** `must-have` `epic: community`
 
 **User Story**
 As a **signed-in member**, I can **create a post in the community feed** so that **I can share my progress, tips, or questions with other members**.
 
 **Acceptance Criteria**
+
 - Post form is visible only to signed-in users
 - Post requires a non-empty body (text)
 - After posting, the new post appears at the top of the feed
 - Author name and timestamp are displayed on the post
 
 **Tasks**
+
 - Build `CommunityPostCreateView` with `@login_required`
 - Associate post with `request.user`
 - Redirect to feed on success with success message
@@ -789,17 +827,20 @@ As a **signed-in member**, I can **create a post in the community feed** so that
 ---
 
 ### US-24 - Delete own community post
+
 **Label:** `should-have` `epic: community`
 
 **User Story**
 As a **signed-in member**, I can **delete my own posts** so that **I can remove content I no longer wish to share**.
 
 **Acceptance Criteria**
+
 - Delete button is visible only to the post author
 - Confirmation is required before deletion
 - Post is removed from the feed immediately
 
 **Tasks**
+
 - Build `CommunityPostDeleteView` with ownership check
 - Add confirmation step (modal or confirm page)
 
@@ -807,52 +848,59 @@ As a **signed-in member**, I can **delete my own posts** so that **I can remove 
 
 ## EPIC 8 — Blog
 
----
-
 ### US-25 - Browse blog posts
+
 **Label:** `should-have` `epic: blog`
 
 **User Story**
 As a **visitor or member**, I can **read admin-published blog articles** so that **I can learn about fitness, nutrition, and training**.
 
 **Acceptance Criteria**
+
 - Blog listing page shows published posts in reverse chronological order
 - Each listing shows: title, excerpt, image thumbnail, date
 - Only posts with `status='published'` are shown
 
 **Tasks**
+
 - Build `BlogListView` filtered by `status='published'`
 - Build blog card component
 
 ---
 
 ### US-26 - Read a blog post
+
 **Label:** `should-have` `epic: blog`
 
 **User Story**
 As a **visitor or member**, I can **read a full blog post** so that **I get detailed fitness and nutrition guidance**.
 
 **Acceptance Criteria**
+
 - Detail page shows: title, body, image, author, date
 - Slug-based URL
 
 **Tasks**
+
 - Build `BlogDetailView`
 
 ---
 
 ### US-27 - Publish a blog post (admin)
+
 **Label:** `should-have` `epic: blog`
 
 **User Story**
 As a **site admin**, I can **create and publish blog posts from the Django admin** so that **content is kept fresh without needing a custom CMS**.
 
 **Acceptance Criteria**
+
 - `BLOG_POST` model is registered in Django admin
 - Admin can set status to `draft` or `published`
 - Published posts are immediately visible on the public blog
 
 **Tasks**
+
 - Register `BlogPost` in `admin.py` with list display and status filter
 - Add `prepopulated_fields` for slug from title
 
@@ -863,18 +911,21 @@ As a **site admin**, I can **create and publish blog posts from the Django admin
 ---
 
 ### US-28 - Leave a review on a plan or product
+
 **Label:** `should-have` `epic: reviews`
 
 **User Story**
 As a **member who has accessed a plan or purchased a product**, I can **leave a star rating and written review** so that **other members can make informed decisions**.
 
 **Acceptance Criteria**
+
 - Review form is visible only to users with `PLAN_ACCESS` or a completed order containing the item
 - Form collects: rating (1–5), body text
 - One review per user per plan/product (edit replaces previous)
 - Average rating is displayed on the plan/product detail page
 
 **Tasks**
+
 - Build `ReviewCreateView` with access check
 - Enforce one review per user per plan/product with `unique_together`
 - Compute and display average rating on detail pages
@@ -886,35 +937,41 @@ As a **member who has accessed a plan or purchased a product**, I can **leave a 
 ---
 
 ### US-29 - Manage plans and products in Django admin
+
 **Label:** `must-have` `epic: admin`
 
 **User Story**
 As a **site admin**, I can **create, edit, and deactivate plans and products from Django admin** so that **the catalog stays up to date without code changes**.
 
 **Acceptance Criteria**
+
 - `PLAN`, `PLAN_CATEGORY`, `PRODUCT`, `PRODUCT_CATEGORY` are all registered in admin
 - Admin can toggle `is_active` to hide items from the catalog
 - Slug fields are auto-populated from title/name
 - Admin can set `premium_only` on plans
 
 **Tasks**
+
 - Register all catalog models in `admin.py`
 - Add `list_display`, `list_filter`, `search_fields`, `prepopulated_fields` for each
 
 ---
 
 ### US-30 - View and manage orders in Django admin
+
 **Label:** `must-have` `epic: admin`
 
 **User Story**
 As a **site admin**, I can **view all orders and their line items in Django admin** so that **I can handle fulfilment and customer queries**.
 
 **Acceptance Criteria**
+
 - `ORDER` and `ORDER_ITEM` are visible in admin
 - Admin can filter orders by `status` and search by `order_number`
 - Admin can update order `status` (e.g. mark as shipped)
 
 **Tasks**
+
 - Register `Order` and `OrderItem` with inline `OrderItem`
 - Add `list_display` with order number, user, total, status, created_at
 - Add `status` filter and `order_number` search
@@ -922,16 +979,19 @@ As a **site admin**, I can **view all orders and their line items in Django admi
 ---
 
 ### US-31 - Manage challenges in Django admin
+
 **Label:** `could-have` `epic: admin`
 
 **User Story**
 As a **site admin**, I can **create and manage fitness challenges** so that **members are motivated with time-limited group goals**.
 
 **Acceptance Criteria**
+
 - `CHALLENGE` model is registered in admin
 - Admin can set title, description, start/end date, and toggle `is_active`
 
 **Tasks**
+
 - Register `Challenge` in admin
 - Add date range filter
 
@@ -942,17 +1002,20 @@ As a **site admin**, I can **create and manage fitness challenges** so that **me
 ---
 
 ### US-32 - Site has descriptive meta tags
+
 **Label:** `should-have` `epic: seo`
 
 **User Story**
 As a **site owner**, I want **every public page to have a descriptive title and meta description** so that **search engines index PulseFit accurately**.
 
 **Acceptance Criteria**
-- `<title>` tag is unique and descriptive per page
-- `<meta name="description">` is set on all public pages
+
+- title tag is unique and descriptive per page
+- meta description is set on all public pages
 - Open Graph tags are present on key pages
 
 **Tasks**
+
 - Add `{% block title %}` and `{% block meta_description %}` to base template
 - Populate per template
 - Add OG tags to base template
@@ -960,49 +1023,58 @@ As a **site owner**, I want **every public page to have a descriptive title and 
 ---
 
 ### US-33 - sitemap.xml is generated
+
 **Label:** `should-have` `epic: seo`
 
 **User Story**
 As a **site owner**, I want **a sitemap.xml to be available** so that **search engine crawlers can discover all public pages**.
 
 **Acceptance Criteria**
+
 - `/sitemap.xml` returns a valid XML sitemap
 - Sitemap includes: home, plans catalog, shop, blog posts, pricing
 
 **Tasks**
+
 - Install and configure `django.contrib.sitemaps`
 - Register plan, product, and blog post sitemaps
 
 ---
 
 ### US-34 - robots.txt is served correctly
+
 **Label:** `should-have` `epic: seo`
 
 **User Story**
 As a **site owner**, I want **a robots.txt file** so that **search engines know which parts of the site to crawl**.
 
 **Acceptance Criteria**
+
 - `/robots.txt` is accessible
 - Admin and private URLs are disallowed
 
 **Tasks**
+
 - Serve `robots.txt` via a simple view or static file
 - Disallow `/admin/`, `/checkout/`, `/dashboard/`
 
 ---
 
 ### US-35 - Newsletter sign-up
+
 **Label:** `could-have` `epic: seo`
 
 **User Story**
 As a **visitor**, I can **sign up for the PulseFit newsletter** so that **I receive fitness tips and offers by email**.
 
 **Acceptance Criteria**
+
 - Newsletter sign-up form is present in the footer
 - Submitting a valid email saves it or passes it to a third-party service (e.g. Mailchimp)
 - Success message confirms sign-up
 
 **Tasks**
+
 - Build newsletter sign-up form and view
 - Integrate with Mailchimp API or save email to a simple `NewsletterSubscriber` model
 
@@ -1013,49 +1085,58 @@ As a **visitor**, I can **sign up for the PulseFit newsletter** so that **I rece
 ---
 
 ### US-36 - Informative 404 page
+
 **Label:** `must-have` `epic: ux`
 
 **User Story**
 As a **user who navigates to a non-existent page**, I can **see a helpful 404 page** so that **I understand what happened and can find my way back**.
 
 **Acceptance Criteria**
+
 - Custom 404 page matches site design
 - Page includes navigation back to home
 
 **Tasks**
+
 - Create `404.html` template in templates root
 - Set `DEBUG=False` in production to serve custom error pages
 
 ---
 
 ### US-37 - Informative 500 page
+
 **Label:** `must-have` `epic: ux`
 
 **User Story**
 As a **user who encounters a server error**, I can **see a friendly error page** so that **I know something went wrong and the team is aware**.
 
 **Acceptance Criteria**
+
 - Custom 500 page matches site design
 - Page does not expose technical error details to the user
 
 **Tasks**
+
 - Create `500.html` template
 - Verify it serves correctly in production (`DEBUG=False`)
 
 ---
 
 ### US-38 - Toast / flash messages for all key actions
+
 **Label:** `should-have` `epic: ux`
 
 **User Story**
 As a **user**, I can **see a brief confirmation message after key actions** so that **I know my action was successful or if something went wrong**.
 
 **Acceptance Criteria**
+
 - Success messages shown after: login, logout, registration, add to cart, post created, workout logged, subscription started
 - Error messages shown for: failed payment, form validation errors
 - Messages are dismissible
 
 **Tasks**
+
 - Add Django messages framework to base template
 - Style message toasts using design system (success = #22C55E, danger = #EF4444)
 - Apply `messages.success` / `messages.error` in all relevant views
@@ -1065,7 +1146,7 @@ As a **user**, I can **see a brief confirmation message after key actions** so t
 ## MoSCoW Summary
 
 | Priority | Count | User Stories |
-|---|---|---|
+| --- | --- | --- |
 | **Must Have** | 18 | US-01–03, US-05–07, US-09–11, US-13–14, US-16–19, US-22–23, US-29–30, US-36–37 |
 | **Should Have** | 13 | US-04, US-08, US-12, US-15, US-20–21, US-24–28, US-32–34, US-38 |
 | **Could Have** | 3 | US-31, US-35, + further challenge tracking |
@@ -1074,7 +1155,7 @@ As a **user**, I can **see a brief confirmation message after key actions** so t
 ---
 
 | Milestone | User Stories |
-|---|---|
+| --- | --- |
 | Sprint 1 — Foundation | US-01, US-02, US-03, US-36, US-37 |
 | Sprint 2 — Catalog | US-05, US-06, US-07, US-08, US-29 |
 | Sprint 3 — Cart & Checkout | US-09, US-10, US-11, US-12, US-30 |
@@ -1084,3 +1165,244 @@ As a **user**, I can **see a brief confirmation message after key actions** so t
 | Sprint 7 — Polish & Could Haves | US-04, US-31, US-35 |
 
 ---
+
+## Technologies Used
+
+### Languages
+
+- Python 3.12
+- HTML5
+- CSS3
+- JavaScript
+
+### Frameworks, Libraries & Tools
+
+**Backend**
+
+- Django 6.0.6
+- django-allauth 65.18.0
+- Stripe 15.3.0
+
+**Database**
+
+- PostgreSQL
+- dj-database-url 3.1.2
+- psycopg2-binary 2.9.12
+
+**Deployment**
+
+- Heroku
+- Gunicorn 26.0.0
+- WhiteNoise 6.12.0
+- environs 15.0.1
+
+**Design & Frontend**
+
+- Custom CSS — no framework
+- Google Fonts
+
+**Version Control & Project Management**
+
+- Git & GitHub (Issues for user story tracking)
+- draw.io (ER diagram)
+
+## Testing
+
+# Manual Testing
+
+These manual tests were run on the deployed Heroku application to verify that
+every feature works correctly. Stripe flows were tested in test mode using card
+`4242 4242 4242 4242` (success) and `4000 0000 0000 0002` (declined). Webhook
+events were replayed with the Stripe CLI.
+
+## Test Results
+
+| Feature | Test | Action | Expected Result | Actual Result | Pass |
+|---|---|---|---|---|---|
+| **Navigation** | Brand link | Click the PulseFit logo in the header | Redirects to the home page from any page | As expected | ✅ |
+| **Navigation** | Plans link | Click "Plans" in the header | Opens the plans catalog | As expected | ✅ |
+| **Navigation** | Shop link | Click "Shop" in the header | Opens the shop | As expected | ✅ |
+| **Navigation** | Blog link | Click "Blog" in the header | Opens the blog listing | As expected | ✅ |
+| **Navigation** | Community link | Click "Community" in the header | Opens the community feed | As expected | ✅ |
+| **Navigation** | Pricing link | Click "Pricing" in the header | Opens the pricing page | As expected | ✅ |
+| **Navigation** | Cart icon | Click the cart icon | Opens the cart; badge shows the item count | As expected | ✅ |
+| **Navigation** | Logged-out header | Load any page without signing in | Header shows only Sign in / Sign up, with no dashboard or post controls | As expected | ✅ |
+| **Navigation** | Logged-in header | Sign in and load any page | Header shows the avatar menu with Dashboard and Sign out | As expected | ✅ |
+| **Navigation** | Footer copyright | Load any page | Footer displays the © notice and site name | As expected | ✅ |
+| **Navigation** | Footer links | Click each footer link | All resolve to a valid page (no 404) | As expected | ✅ |
+| **Navigation** | External links | Click social / external links | Open in a new tab with `rel="noopener"` | As expected | ✅ |
+| **Authentication** | Register: valid | Submit registration with valid name, email, password + confirm | Account created, auto-signed in, redirected to dashboard | As expected | ✅ |
+| **Authentication** | Register: duplicate email | Submit with an email already in use | "Email already registered" error; no account created | As expected | ✅ |
+| **Authentication** | Register: weak password | Submit with a password under 8 characters | Minimum-length error; form not submitted | As expected | ✅ |
+| **Authentication** | Register: password mismatch | Submit with confirm ≠ password | "Passwords must match" error shown | As expected | ✅ |
+| **Authentication** | Register: sign-in link | View the register page | "Sign in" link is present and navigates to login | As expected | ✅ |
+| **Authentication** | Login: valid | Sign in with correct email + password | Redirected to the dashboard | As expected | ✅ |
+| **Authentication** | Login: invalid | Sign in with a wrong password | Generic error that does not reveal whether the email exists | As expected | ✅ |
+| **Authentication** | Login: password toggle | Click the show/hide eye icon | Password text toggles between masked and visible | As expected | ✅ |
+| **Authentication** | Logout | Click sign out from the avatar menu | Session destroyed, redirected to the home page | As expected | ✅ |
+| **Authentication** | Password reset: request | Submit a registered email on "Forgot password?" | Reset email is sent | As expected | ✅ |
+| **Authentication** | Password reset: complete | Follow the link and set a new password | New password accepted; user can sign in with it | As expected | ✅ |
+| **Authentication** | Password reset: expired link | Reuse an expired / used reset link | Link rejected with an appropriate message | As expected | ✅ |
+| **Plans Catalog** | Browse plans | Open the catalog while signed out | All active plans shown in a card grid; loads without login | As expected | ✅ |
+| **Plans Catalog** | Card fields | Inspect a plan card | Image, title, category and price all render | As expected | ✅ |
+| **Plans Catalog** | Filter tabs | Click All / Exercise / Nutrition | Results filter by category without a page reload | As expected | ✅ |
+| **Plans Catalog** | Empty state | Apply a filter with no matching plans | "No products yet" empty state is shown | As expected | ✅ |
+| **Plans Catalog** | Plan detail | Open a plan via its slug URL | Title, description, price and category render | As expected | ✅ |
+| **Plans Catalog** | Premium plan (free user) | View a `premium_only` plan as a non-subscriber | "Go Premium" CTA and premium badge shown | As expected | ✅ |
+| **Plans Catalog** | Plan with access | View a plan the user already owns | "Access Content" button shown instead of the CTA | As expected | ✅ |
+| **Shop** | Browse shop | Open the shop while signed out | All active products shown in a card grid | As expected | ✅ |
+| **Shop** | Filter tabs | Click All / Exercise / Nutrition / Merch | Products filter by category | As expected | ✅ |
+| **Shop** | Out of stock | View an out-of-stock product | Product is visually distinguished as out of stock | As expected | ✅ |
+| **Shop** | Product detail | Open a product via its slug | Name, description, price, stock and Add to Cart render | As expected | ✅ |
+| **Shop** | Add to cart disabled | View a product with `stock = 0` | "Add to Cart" button is disabled | As expected | ✅ |
+| **Cart** | Add plan | Add a plan from its detail page | Item added; nav cart count increments | As expected | ✅ |
+| **Cart** | Add product | Add a product from its detail page | Item added; nav cart count increments | As expected | ✅ |
+| **Cart** | Add duplicate | Add the same item twice | Quantity increases; no duplicate line | As expected | ✅ |
+| **Cart** | Session cart | Add items while signed out | Cart persists in the session (no login required) | As expected | ✅ |
+| **Cart** | View cart | Open the cart page | Each item shows name, unit price, quantity and line total | As expected | ✅ |
+| **Cart** | Update quantity | Increase / decrease a quantity | Quantity and order total update | As expected | ✅ |
+| **Cart** | Remove item | Remove an item | Item removed; total recalculated | As expected | ✅ |
+| **Checkout** | Successful payment | Check out with card `4242 4242 4242 4242` | ORDER + ORDER_ITEM created; success page with summary | As expected | ✅ |
+| **Checkout** | Declined card | Check out with card `4000 0000 0000 0002` | Clear payment error; no order created | As expected | ✅ |
+| **Checkout** | Shipping address | Check out with a physical product | Shipping address fields collected | As expected | ✅ |
+| **Checkout** | Confirmation email | Complete a purchase | Email sent with order number, items, total and date | As expected | ✅ |
+| **Subscriptions** | Pricing tiers | Open the pricing page | Free $0 and Premium $19/mo shown clearly | As expected | ✅ |
+| **Subscriptions** | Subscribe | Click "Go Premium" and complete Stripe checkout | SUBSCRIPTION created with `status='active'` and correct tier | As expected | ✅ |
+| **Subscriptions** | Premium unlocked | Return to the app after subscribing | PLAN_ACCESS (`source='subscription'`) created; dashboard shows premium | As expected | ✅ |
+| **Subscriptions** | Status display | View the dashboard as an active subscriber | Plan tier, active status and next renewal date shown | As expected | ✅ |
+| **Subscriptions** | Cancelled display | View the dashboard after cancelling | End-of-access date shown (from `current_period_end`) | As expected | ✅ |
+| **Subscriptions** | Cancel | Cancel the subscription from the dashboard | `cancel_at_period_end=True` set; "Cancels on [date]" shown | As expected | ✅ |
+| **Subscriptions** | Access after cancel | Access premium content after cancelling | Content still accessible until the period ends | As expected | ✅ |
+| **Subscriptions** | Renewal success | Replay `invoice.payment_succeeded` via Stripe CLI | `current_period_end` updated | As expected | ✅ |
+| **Subscriptions** | Renewal failure | Replay `invoice.payment_failed` | Status set to `past_due` | As expected | ✅ |
+| **Subscriptions** | Subscription deleted | Replay `customer.subscription.deleted` | Access revoked | As expected | ✅ |
+| **Content Gating** | Subscriber access | Open a premium plan as an active subscriber | Full premium content is accessible | As expected | ✅ |
+| **Content Gating** | Free user gated | Open the same plan as a free user | Paywall / upsell shown; content withheld | As expected | ✅ |
+| **Content Gating** | Individual purchase | Buy a single plan and open it | PLAN_ACCESS (`source='purchase'`) created; that plan accessible | As expected | ✅ |
+| **Content Gating** | Scope of access | Check other premium plans after one purchase | Other premium plans remain gated | As expected | ✅ |
+| **Content Gating** | Persistence | Check the purchased plan regardless of subscription state | Stays accessible | As expected | ✅ |
+| **Dashboard** | Stats render | Open the dashboard while signed in | Weekly workouts, minutes, streak and goal % render | As expected | ✅ |
+| **Dashboard** | Empty today's plan | View with no active plan | "No workout scheduled" empty state shown | As expected | ✅ |
+| **Dashboard** | Free upsell | View the dashboard as a free user | "Upgrade to Premium" card shown | As expected | ✅ |
+| **Dashboard** | Quick actions | Click the Quick Actions shortcuts | Shortcut links work | As expected | ✅ |
+| **Dashboard** | Log workout | Submit the log form (plan optional, date, duration) | Workout appears in Weekly Progress; completion % updates | As expected | ✅ |
+| **Dashboard** | Log without plan | Log a workout with no plan selected | Saved with plan left null | As expected | ✅ |
+| **Dashboard** | Set goal | Set a weekly workout target | USER_GOAL saved; progress bar reflects it | As expected | ✅ |
+| **Dashboard** | Update goal | Change an existing goal | Existing record updated, not duplicated | As expected | ✅ |
+| **Community** | Feed signed out | Open the feed while signed out | Posts read-only, newest first; "Join Free" CTA shown | As expected | ✅ |
+| **Community** | Empty feed | View the feed with no posts | Empty state shown | As expected | ✅ |
+| **Community** | Post fields | Inspect a post | Author, body and timestamp render | As expected | ✅ |
+| **Community** | Create post | Submit a post while signed in | Post appears at the top with author + timestamp | As expected | ✅ |
+| **Community** | Empty post | Submit an empty body | Rejected; a non-empty body is required | As expected | ✅ |
+| **Community** | Form hidden signed out | View the feed while signed out | Post form is not visible to visitors | As expected | ✅ |
+| **Community** | Delete own post | Delete your own post (with confirmation) | Post removed from the feed immediately | As expected | ✅ |
+| **Community** | Delete control scope | View other members' posts | Delete button only visible on your own posts | As expected | ✅ |
+| **Community** | Delete guard | Delete another user's post via a crafted URL | Rejected (ownership check) | As expected | ✅ |
+| **Blog** | Browse blog | Open the blog listing | Published posts newest first with title, excerpt, thumbnail, date | As expected | ✅ |
+| **Blog** | Drafts hidden | Check for draft posts | Only `status='published'` posts appear | As expected | ✅ |
+| **Blog** | Read post | Open a post via its slug | Title, body, image, author and date render | As expected | ✅ |
+| **Blog** | Publish (admin) | Publish a post in Django admin | Post immediately visible on the public blog | As expected | ✅ |
+| **Blog** | Slug autofill | Create a post in admin | Slug auto-populates from the title | As expected | ✅ |
+| **Reviews** | Leave review | Submit rating + review as a user with access | Review saved; average rating shown on the detail page | As expected | ✅ |
+| **Reviews** | Review gating | View the form without access | Form hidden unless PLAN_ACCESS or a completed order exists | As expected | ✅ |
+| **Reviews** | One per item | Submit a second review for the same item | Previous review is replaced | As expected | ✅ |
+| **Admin** | Catalog models | Open Django admin | Plan, PlanCategory, Product, ProductCategory registered | As expected | ✅ |
+| **Admin** | Toggle active | Turn off `is_active` on a plan | Item removed from the public catalog | As expected | ✅ |
+| **Admin** | Slug prepopulate | Create a plan in admin | Slug auto-populates from the title | As expected | ✅ |
+| **Admin** | Premium flag | Set `premium_only` on a plan | Plan flagged premium on its detail page | As expected | ✅ |
+| **Admin** | Orders | View orders in admin | ORDER + ORDER_ITEM visible; OrderItem shown inline | As expected | ✅ |
+| **Admin** | Order filter / search | Filter by status, search by order number | Correct results returned | As expected | ✅ |
+| **Admin** | Order status | Update an order status (e.g. mark shipped) | Change saved | As expected | ✅ |
+| **Admin** | Challenges | Create a challenge with dates + `is_active` | Saved; date range filter available | As expected | ✅ |
+| **SEO & Marketing** | Meta tags | View source on home / plans / shop / blog / pricing | Unique title + meta description per page | As expected | ✅ |
+| **SEO & Marketing** | Open Graph | Inspect `base.html` output | OG tags present on key pages | As expected | ✅ |
+| **SEO & Marketing** | Sitemap | Open `/sitemap.xml` | Valid XML including home, plans, shop, blog, pricing | As expected | ✅ |
+| **SEO & Marketing** | robots.txt | Open `/robots.txt` | Served; `/admin/`, `/checkout/`, `/dashboard/` disallowed | As expected | ✅ |
+| **SEO & Marketing** | Newsletter: valid | Submit a valid email in the footer | Email saved; success message shown | As expected | ✅ |
+| **SEO & Marketing** | Newsletter: invalid | Submit an invalid email | Validation error; nothing saved | As expected | ✅ |
+| **Error Handling** | 404 page | Open a non-existent URL (`DEBUG=False`) | Custom 404 page with a link back home | As expected | ✅ |
+| **Error Handling** | 500 page | Trigger a server error in production | Custom 500 page; no technical details exposed | As expected | ✅ |
+| **Error Handling** | Toasts: success | Perform login / logout / register / add-to-cart / post / log / subscribe | Success toast shown after each action | As expected | ✅ |
+| **Error Handling** | Toasts: error | Trigger a failed payment / validation error | Error toast shown | As expected | ✅ |
+| **Error Handling** | Toast dismiss | Dismiss a toast | Message is dismissible | As expected | ✅ |
+| **Form Validation** | Workout duration: text | Enter a non-numeric duration | Value rejected as invalid | As expected | ✅ |
+| **Form Validation** | Workout duration: non-positive | Enter zero / negative duration | Rejected (must be positive) | As expected | ✅ |
+| **Form Validation** | Goal: text | Enter a non-numeric target | Rejected | As expected | ✅ |
+| **Form Validation** | Review: bad rating | Enter a rating below 1 or above 5 | Rejected | As expected | ✅ |
+| **Form Validation** | Checkout: incomplete card | Submit with incomplete card details | Stripe element blocks submission | As expected | ✅ |
+| **Access Control** | Protected page | Open `/dashboard/` while signed out | Redirected to login | As expected | ✅ |
+| **Access Control** | Log endpoint | POST to the log endpoint while signed out | Rejected / redirected to login | As expected | ✅ |
+| **Access Control** | Admin access | Open `/admin/` as a non-staff user | Access denied / redirected | As expected | ✅ |
+| **Access Control** | Webhook signature | Send a Stripe webhook with an invalid signature | Rejected with 400; no records created | As expected | ✅ |
+| **Access Control** | Checkout mode guard | Send a webhook missing `mode: "payment"` | Handler ignores the event as designed | As expected | ✅ |
+| **Responsiveness** | Mobile 375px | Load key pages at 375px in DevTools | No horizontal scroll; nav collapses; grids reflow | As expected | ✅ |
+| **Responsiveness** | Mobile 390px | Load key pages at 390px | Layout intact | As expected | ✅ |
+| **Responsiveness** | Tablet 768px | Load key pages at 768px | Layout intact | As expected | ✅ |
+| **Responsiveness** | Tablet 1024px | Load key pages at 1024px | Layout intact | As expected | ✅ |
+| **Responsiveness** | Laptop 1366px | Load key pages at 1366px | Layout intact | As expected | ✅ |
+| **Responsiveness** | Desktop 1920px | Load key pages at 1920px | Layout intact | As expected | ✅ |
+| **Browser** | Chrome | Run the full app in latest Chrome | No layout or functional differences | As expected | ✅ |
+| **Browser** | Firefox | Run the full app in latest Firefox | No differences | As expected | ✅ |
+| **Browser** | Edge | Run the full app in latest Edge | No differences | As expected | ✅ |
+| **Browser** | Safari (macOS) | Run the full app in latest Safari | No differences | As expected | ✅ |
+| **Browser** | Safari (iOS) | Run the full app in latest iOS Safari | No differences | As expected | ✅ |
+
+## Code Validation
+
+Pep8 was run using pycodestyle
+
+![Screenshot of pycodestyle output](/screenshots/pycodestyle.png)
+
+Homepage were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/homepage-html-validation.png)
+
+Product listings were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/products-html-validation.png)
+
+Product detail pages were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/product-detail.png)
+
+Cart page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/cart.png)
+
+Login page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/login.png)
+
+Signup page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/signup.png)
+
+Dashboard page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/dashboard.png)
+
+Blog listing page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/blog.png)
+
+Blog Detail page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/blog-detail.png)
+
+| Tool | Scope | Result |
+|---|---|---|
+| W3C HTML Validator | Rendered templates |  |
+| W3C CSS (Jigsaw) Validator | `base.css` and app styles | _(add results / screenshots)_ |
+| JSHint | Inline / static JS | _(add results / screenshots)_ |
+| CI Python Linter (PEP8) | All Python modules | _(add results; `E501` fixes in progress)_ |
+
+## Automated Testing
+
+The manual testing above is backed by an automated suite of 262 passing tests:
+
+```bash
+python manage.py test
+```
+
+Coverage spans models, views, forms, Stripe webhook handling (one-time checkout
+and subscription flows), content-gating helpers and access control.
