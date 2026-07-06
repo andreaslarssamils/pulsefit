@@ -483,6 +483,42 @@ select:focus {
     color: var(--text-2);
 }
 
+.footer-social {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+}
+
+.site-footer .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background-color: var(--surface-2);
+    color: var(--text-2);
+    transition: color 0.15s ease, border-color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.social-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+.site-footer .social-link:hover {
+    color: var(--orange-500);
+    border-color: var(--orange-500);
+}
+
+.site-footer .social-link:focus-visible {
+    outline: none;
+    border-color: var(--orange-500);
+    box-shadow: var(--glow);
+}
+
 /* --------------------------- Messages ----------------------------- */
 .messages {
     list-style: none;

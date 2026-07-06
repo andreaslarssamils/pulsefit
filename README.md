@@ -1441,3 +1441,181 @@ and subscription flows), content-gating helpers and access control.
 No outstanding functional defects are known: the full automated suite (267 tests) passes and `manage.py check` reports no issues.
 
 One deliberate limitation remains by design — the `Challenge` model is intentionally decoupled from the rest of the schema with no participation/join table, so challenges are presented as informational content rather than tracked per user. This was a scoped-out feature, not a defect.
+
+## Deployment
+
+The application is deployed on Heroku and runs against a Heroku Postgres
+database.
+
+**Live site:** <https://pulsefit-6c0b7d8466db.herokuapp.com/>
+
+The repository already contains everything Heroku needs to build and run the
+project:
+
+- `Procfile` — runs database migrations in the release phase and serves the app
+  with Gunicorn (`web: gunicorn config.wsgi`)
+- `requirements.txt` — pinned Python dependencies
+- `runtime.txt` — pins the Python version (`python-3.12.12`)
+- WhiteNoise is configured for compressed, hashed static files, so no separate
+  static host is required
+
+### Deploying to Heroku
+
+1. **Create the app.** In the Heroku dashboard choose _New → Create new app_,
+   pick a unique name and a region. (Via the CLI: `heroku create <app-name>`.)
+
+2. **Add the database.** On the _Resources_ tab, add the **Heroku Postgres**
+   add-on. This provisions the database and sets the `DATABASE_URL` config var
+   automatically — do not set it by hand.
+
+3. **Set the config vars.** Under _Settings → Reveal Config Vars_, add the
+   following (or use `heroku config:set KEY=value`):
+
+   | Key | Required | Notes |
+   |-----|----------|-------|
+   | `SECRET_KEY` | Yes | A fresh Django secret key. The app will not start without it. |
+   | `DEBUG` | Recommended | Set to `False` in production. |
+   | `ALLOWED_HOSTS` | Yes | Comma-separated; include the Heroku host, e.g. `pulsefit-6c0b7d8466db.herokuapp.com`. |
+   | `DATABASE_URL` | Auto | Provided by the Heroku Postgres add-on. |
+   | `STRIPE_PUBLISHABLE_KEY` | Yes | From the Stripe dashboard. |
+   | `STRIPE_SECRET_KEY` | Yes | From the Stripe dashboard. |
+   | `STRIPE_PREMIUM_PRICE_ID` | Yes | Price ID of the Premium subscription. |
+   | `STRIPE_WEBHOOK_SECRET` | Yes | Signing secret for the one-time checkout webhook endpoint. |
+   | `STRIPE_SUBSCRIPTION_WEBHOOK_SECRET` | Yes | Signing secret for the subscription webhook endpoint (a separate endpoint). |
+   | `EMAIL_BACKEND` | Optional | An SMTP backend for real email; defaults to the console backend. |
+   | `DEFAULT_FROM_EMAIL` | Optional | Sender address for transactional email. |
+   | `MAILCHIMP_API_KEY` | Optional | Required only for live newsletter sign-up. |
+   | `MAILCHIMP_AUDIENCE_ID` | Optional | Mailchimp audience/list ID. |
+   | `MAILCHIMP_SERVER_PREFIX` | Optional | e.g. `us21`. |
+
+4. **Connect the repository.** On the _Deploy_ tab choose **GitHub** as the
+   deployment method and connect the `andreaslarssamils/pulsefit` repo. Enable
+   _Automatic deploys_ from `main`, or trigger a **Manual deploy**.
+   (Alternatively, deploy from the CLI with `git push heroku main`.)
+
+5. **Deploy.** During the build, Heroku installs the requirements and runs
+   `collectstatic` automatically. On release, the `Procfile` release phase runs
+   `python manage.py migrate`, so the schema is applied with no manual step.
+
+6. **Create an admin user** to reach the Django admin:
+
+```bash
+   heroku run python manage.py createsuperuser
+```
+
+The app is then live at `https://<your-app-name>.herokuapp.com/`.
+
+### Stripe webhooks
+
+Checkout and subscriptions are handled by **two separate** webhook endpoints
+with **separate** signing secrets. In the Stripe dashboard create one endpoint
+for the one-time checkout flow and one for the subscription flow, then set their
+secrets as `STRIPE_WEBHOOK_SECRET` and `STRIPE_SUBSCRIPTION_WEBHOOK_SECRET`
+respectively.
+
+### Forking the repository
+
+1. Log in to GitHub and open
+   [`andreaslarssamils/pulsefit`](https://github.com/andreaslarssamils/pulsefit).
+2. Click **Fork** (top right) to create a copy under your own account.
+
+### Running the project locally
+
+1. **Clone** your fork (or the original repository):
+
+```bash
+   git clone https://github.com/andreaslarssamils/pulsefit.git
+   cd pulsefit
+```
+
+1. **Create and activate a virtual environment:**
+
+```bash
+   python3 -m venv .venv
+   source .venv/bin/activate        # macOS / Linux
+   # .venv\Scripts\activate         # Windows
+```
+
+1. **Install the dependencies:**
+
+```bash
+   pip install -r requirements.txt
+```
+
+1. **Create a `.env` file** in the project root. Settings are read via
+   `environs`, so a local `.env` is picked up automatically. `DATABASE_URL` is
+   optional locally — if omitted, the app falls back to SQLite.
+
+```bash
+   SECRET_KEY=your-local-secret-key
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   # DATABASE_URL=postgres://...        # optional; omit to use SQLite
+   STRIPE_PUBLISHABLE_KEY=pk_test_...
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_PREMIUM_PRICE_ID=price_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   STRIPE_SUBSCRIPTION_WEBHOOK_SECRET=whsec_...
+   # EMAIL_BACKEND defaults to the console backend (emails print to the terminal)
+   MAILCHIMP_API_KEY=...
+   MAILCHIMP_AUDIENCE_ID=...
+   MAILCHIMP_SERVER_PREFIX=...
+```
+
+1. **Apply migrations and create an admin user:**
+
+```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+```
+
+1. **Run the development server:**
+
+```bash
+   python manage.py runserver
+```
+
+   The site is then available at `http://127.0.0.1:8000/`.
+
+
+## Credits and Attributions
+
+### Frameworks and Libraries
+
+- [Django](https://www.djangoproject.com/) — web framework
+- [django-allauth](https://docs.allauth.org/) — authentication
+- [Stripe (stripe-python)](https://github.com/stripe/stripe-python) — payments, subscriptions, and webhooks
+- [environs](https://github.com/sloria/environs) — environment variable management
+- [dj-database-url](https://github.com/jazzband/dj-database-url) — database configuration
+- [WhiteNoise](https://whitenoise.readthedocs.io/) — static file serving
+- [Gunicorn](https://gunicorn.org/) — WSGI server
+- [psycopg2](https://www.psycopg.org/) — PostgreSQL adapter
+
+### Services
+
+- [Heroku](https://www.heroku.com/) — cloud hosting platform
+- [Stripe](https://stripe.com/) — payment processing (Checkout, Subscriptions)
+- [Mailchimp](https://mailchimp.com/developer/marketing/) — newsletter sign-up via the Marketing API
+- [PostgreSQL](https://www.postgresql.org/) — relational database
+
+### Fonts
+
+- [Sora](https://fonts.google.com/specimen/Sora) — heading font, via Google Fonts
+- [DM Sans](https://fonts.google.com/specimen/DM+Sans) — body font, via Google Fonts
+
+### Tools
+
+- [W3C HTML Validator](https://validator.w3.org/) — HTML validation
+- [W3C CSS Validator](https://jigsaw.w3.org/css-validator/) — CSS validation
+- [pycodestyle](https://pycodestyle.pycqa.org/) — PEP8 validation
+
+### Acknowledgements
+
+- Code Institute — project brief and learning outcomes
+
+### References
+
+- [LearnDjango](https://learndjango.com/) — Django tutorials and best practices by Will Vincent
+- [Google Gemini](https://gemini.google.com/) — AI tool used to generate post content and assist with code guidance, improvements, debugging, and documentation support
+- [Claude](https://claude.ai/) by Anthropic — AI assistant used for code guidance, improvements, debugging, and documentation support
+- [GitHub Copilot](https://copilot.github.com/) by GitHub — AI code completion tool used to assist with coding tasks and improve efficiency
