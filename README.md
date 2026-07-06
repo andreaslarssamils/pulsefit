@@ -1389,6 +1389,10 @@ Blog Detail page were validated with the W3C HTML Validator
 
 ![Screenshot of W3C HTML Validator output](/screenshots/blog-detail.png)
 
+Community page were validated with the W3C HTML Validator
+
+![Screenshot of W3C HTML Validator output](/screenshots/community.png)
+
 | Tool | Scope | Result |
 |---|---|---|
 | W3C HTML Validator | Rendered templates |  |
@@ -1398,7 +1402,7 @@ Blog Detail page were validated with the W3C HTML Validator
 
 ## Automated Testing
 
-The manual testing above is backed by an automated suite of 262 passing tests:
+The manual testing above is backed by an automated suite of 267 passing tests:
 
 ```bash
 python manage.py test
@@ -1406,3 +1410,24 @@ python manage.py test
 
 Coverage spans models, views, forms, Stripe webhook handling (one-time checkout
 and subscription flows), content-gating helpers and access control.
+
+## Bugs
+
+### Resolved bugs
+
+| # | Bug | Cause | Fix |
+|---|-----|-------|-----|
+| 1 | Stripe checkout webhook created no order, yet the test still passed | The webhook handler tells one-time payments apart from subscription events by guarding on `session["mode"] == "payment"`. Early checkout fixtures omitted `mode`, so the handler skipped order creation while the assertion-light test still went green. | Added `"mode": "payment"` to the checkout webhook payloads and kept the explicit guard in `orders/views.py`, so only genuine payment sessions create an `Order`. |
+| 2 | Duplicate orders from repeated webhook deliveries | Stripe can deliver the same event more than once, and the pre-insert `exists()` check is not atomic, so a concurrent duplicate raced past it and inserted a second row. | Made order creation idempotent: the handler catches the `IntegrityError` from a concurrent duplicate and treats the event as already processed instead of creating a second `Order`. |
+| 3 | Redirect to checkout after login returned `405 Method Not Allowed` | The checkout view was decorated with `@require_POST`, but django-allauth completes login with a GET redirect back to the `next` URL, which the decorator rejected. | Replaced the decorator on the checkout entry point with a manual `if request.method != "POST"` check, while keeping `@require_POST` on the cart and subscription endpoints where a GET never occurs. |
+| 4 | Custom 500 page rendered unstyled and could raise during error handling | `500.html` extended `base.html` and used `{% static %}`. Django renders the 500 handler outside the normal request pipeline, so context processors and static resolution are not guaranteed, breaking the page. | Rewrote `500.html` as a fully standalone document with inline CSS and no `{% extends %}` or `{% static %}`. `404.html` still extends `base.html`, which is safe. |
+| 5 | Premium gating and the nav premium state always evaluated as non-premium | The `subscription_status` context processor was not registered, so `is_premium` was absent from every template context and silently fell back to falsy. | Registered `subscriptions.context_processors.subscription_status` in the `TEMPLATES` `context_processors` list so `is_premium` is available in all templates. |
+| 6 | App failed to boot on django-allauth 65.x | Legacy allauth settings (`ACCOUNT_AUTHENTICATION_METHOD`, `ACCOUNT_EMAIL_REQUIRED`, `ACCOUNT_USERNAME_REQUIRED`) were removed in 65.x and raised an `AssertionError` at startup. | Migrated to the current API: `ACCOUNT_LOGIN_METHODS = {"email"}`, `ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]`, and `ACCOUNT_USER_MODEL_USERNAME_FIELD = None`. |
+| 7 | Migrations crashed on Django 6.0 | `CheckConstraint` was written with the removed `check=` keyword instead of `condition=`. | Updated every constraint to `CheckConstraint(condition=...)` (e.g. `orders.OrderItem`, `reviews.Review`). |
+| 8 | Violet accent colour rendered slightly off across the UI | The `--accent-violet` design token was set to `#ab5cf6` (transposed hex) rather than the design-system value. | Corrected the token to `#8b5cf6` in `static/css/base.css`. |
+
+### Known issues
+
+No outstanding functional defects are known: the full automated suite (267 tests) passes and `manage.py check` reports no issues.
+
+One deliberate limitation remains by design — the `Challenge` model is intentionally decoupled from the rest of the schema with no participation/join table, so challenges are presented as informational content rather than tracked per user. This was a scoped-out feature, not a defect.

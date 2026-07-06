@@ -10,12 +10,12 @@
             <p class="text-muted">Cancels on {{ subscription.current_period_end|date:"F j, Y" }}.</p>
         {% else %}
             <p class="text-muted">Renews on {{ subscription.current_period_end|date:"F j, Y" }}.</p>
-            {% if subscription.is_active %}
-                <form method="post" action="{% url 'subscriptions:cancel' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline">Cancel subscription</button>
-                </form>
-            {% endif %}
+        {% endif %}
+        {% if user.stripe_customer_id %}
+            <form method="post" action="{% url 'subscriptions:portal' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline">Manage subscription</button>
+            </form>
         {% endif %}
     {% else %}
         <p>You don't have a subscription yet.</p>

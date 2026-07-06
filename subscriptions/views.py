@@ -13,6 +13,7 @@ from django.views.decorators.http import require_POST
 from .models import Subscription
 from .services import (
     refresh_subscription_from_invoice,
+    sync_from_checkout_session,
     sync_from_stripe_subscription,
 )
 
@@ -79,7 +80,7 @@ def subscribe(request):
             request.user.id),
         success_url=request.build_absolute_uri(
             reverse("subscriptions:manage")) +
-        "?checkout=success",
+        "?checkout=success&session_id={CHECKOUT_SESSION_ID}",
         cancel_url=request.build_absolute_uri(
             reverse("subscriptions:pricing")),
     )
@@ -88,13 +89,22 @@ def subscribe(request):
 
 @login_required
 def manage(request):
-    subscription = Subscription.objects.filter(user=request.user).first()
     if request.GET.get("checkout") == "success":
+        session_id = request.GET.get("session_id")
+        if session_id:
+            try:
+                sync_from_checkout_session(session_id)
+            except stripe.StripeError:
+                logger.warning(
+                    "Could not sync checkout session %s on success redirect",
+                    session_id,
+                )
         messages.success(
             request,
             "Welcome to PulseFit Premium! Your subscription is being "
             "activated.",
         )
+    subscription = Subscription.objects.filter(user=request.user).first()
     return render(
         request,
         "subscriptions/manage.html",
@@ -104,17 +114,14 @@ def manage(request):
 
 @login_required
 @require_POST
-def cancel(request):
-    subscription = Subscription.objects.filter(user=request.user).first()
-    if (
-        subscription
-        and subscription.is_active
-        and not subscription.cancel_at_period_end
-    ):
-        stripe.Subscription.modify(
-            subscription.stripe_subscription_id, cancel_at_period_end=True
-        )
-        subscription.cancel_at_period_end = True
-        subscription.save(update_fields=["cancel_at_period_end"])
-        messages.success(request, "Your subscription will not renew.")
-    return redirect("subscriptions:manage")
+def billing_portal(request):
+    """Redirect to Stripe's hosted Customer Billing Portal where the user can
+    cancel, resume, update payment method and view invoices. Lifecycle changes
+    flow back into the app via the customer.subscription.* webhooks."""
+    if not request.user.stripe_customer_id:
+        return redirect("subscriptions:pricing")
+    session = stripe.billing_portal.Session.create(
+        customer=request.user.stripe_customer_id,
+        return_url=request.build_absolute_uri(reverse("subscriptions:manage")),
+    )
+    return redirect(session.url)

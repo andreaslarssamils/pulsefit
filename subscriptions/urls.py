@@ -9,5 +9,5 @@ urlpatterns = [
     path("pricing/", views.pricing, name="pricing"),
     path("subscription/subscribe/", views.subscribe, name="subscribe"),
     path("subscription/", views.manage, name="manage"),
-    path("subscription/cancel/", views.cancel, name="cancel"),
+    path("subscription/portal/", views.billing_portal, name="portal"),
 ]

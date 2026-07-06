@@ -10,6 +10,7 @@ from django.urls import reverse
 from plans.models import Plan, PlanAccess, PlanCategory
 from subscriptions.models import Subscription
 from subscriptions.services import (
+    sync_from_checkout_session,
     sync_from_stripe_subscription,
     sync_subscription_access,
 )
@@ -180,6 +181,26 @@ class SyncFromStripeTests(TestCase):
                 customer_id="cus_unknown"))
         self.assertEqual(Subscription.objects.count(), 0)
 
+    @patch("subscriptions.services.stripe.Subscription.retrieve")
+    @patch("subscriptions.services.stripe.checkout.Session.retrieve")
+    def test_sync_from_checkout_session_activates(self, sess, sub):
+        sess.return_value = {"subscription": "sub_1"}
+        sub.return_value = fake_stripe_sub(customer_id="cus_1", sub_id="sub_1")
+        sync_from_checkout_session("cs_test_123")
+        sess.assert_called_once_with("cs_test_123")
+        self.assertTrue(
+            Subscription.objects.filter(
+                user=self.user, status="active").exists())
+
+    @patch("subscriptions.services.stripe.Subscription.retrieve")
+    @patch("subscriptions.services.stripe.checkout.Session.retrieve")
+    def test_sync_from_checkout_session_without_subscription_noop(
+            self, sess, sub):
+        sess.return_value = {"subscription": None}
+        sync_from_checkout_session("cs_test_123")
+        sub.assert_not_called()
+        self.assertEqual(Subscription.objects.count(), 0)
+
 
 class WebhookTests(TestCase):
     def setUp(self):
@@ -277,7 +298,7 @@ class PricingSubscribeTests(TestCase):
 
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)
-class ManageCancelTests(TestCase):
+class ManagePortalTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             email="a@example.com", password="pw12345!")
@@ -298,20 +319,45 @@ class ManageCancelTests(TestCase):
         resp = self.client.get(reverse("subscriptions:manage"))
         self.assertContains(resp, "active")
 
-    @patch("subscriptions.views.stripe.Subscription.modify")
-    def test_cancel_sets_flag_and_calls_stripe(self, modify):
+    def test_manage_shows_portal_button_with_customer_id(self):
+        self.user.stripe_customer_id = "cus_1"
+        self.user.save(update_fields=["stripe_customer_id"])
         Subscription.objects.create(
             user=self.user,
             stripe_subscription_id="sub_1",
             stripe_customer_id="cus_1",
             status="active",
         )
-        resp = self.client.post(reverse("subscriptions:cancel"))
+        resp = self.client.get(reverse("subscriptions:manage"))
+        self.assertContains(resp, "Manage subscription")
+        self.assertContains(resp, reverse("subscriptions:portal"))
+
+    @patch("subscriptions.views.sync_from_checkout_session")
+    def test_manage_success_redirect_syncs_session(self, sync):
+        self.client.get(
+            reverse("subscriptions:manage")
+            + "?checkout=success&session_id=cs_test_123"
+        )
+        sync.assert_called_once_with("cs_test_123")
+
+    @patch("subscriptions.views.stripe.billing_portal.Session.create")
+    def test_billing_portal_redirects_to_stripe(self, portal_create):
+        portal_create.return_value = type(
+            "S", (), {"url": "https://stripe.test/portal"}
+        )
+        self.user.stripe_customer_id = "cus_1"
+        self.user.save(update_fields=["stripe_customer_id"])
+        resp = self.client.post(reverse("subscriptions:portal"))
         self.assertEqual(resp.status_code, 302)
-        modify.assert_called_once_with("sub_1", cancel_at_period_end=True)
-        self.assertTrue(
-            Subscription.objects.get(
-                user=self.user).cancel_at_period_end)
+        self.assertEqual(resp["Location"], "https://stripe.test/portal")
+        self.assertEqual(
+            portal_create.call_args.kwargs["customer"], "cus_1")
+
+    def test_billing_portal_without_customer_redirects_to_pricing(self):
+        resp = self.client.post(reverse("subscriptions:portal"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(
+            reverse("subscriptions:pricing"), resp["Location"])
 
 
 @override_settings(STORAGES=SIMPLE_STATIC_STORAGES)

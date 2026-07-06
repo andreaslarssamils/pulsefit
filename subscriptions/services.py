@@ -55,6 +55,19 @@ def sync_from_stripe_subscription(stripe_sub):
     sync_subscription_access(sub)
 
 
+def sync_from_checkout_session(session_id):
+    """Fetch a completed Checkout Session's subscription and sync it locally.
+    Safety net for the success redirect so activation doesn't depend solely on
+    webhook timing/config. Idempotent with the webhook path (both funnel into
+    sync_from_stripe_subscription, which is keyed by the Stripe customer)."""
+    session = stripe.checkout.Session.retrieve(session_id)
+    subscription_id = session.get("subscription")
+    if not subscription_id:
+        return
+    stripe_sub = stripe.Subscription.retrieve(subscription_id)
+    sync_from_stripe_subscription(stripe_sub)
+
+
 def refresh_subscription_from_invoice(invoice):
     """Invoice events don't carry a stable subscription pointer across API
     versions; use our own row (keyed by the stable invoice customer) to fetch
