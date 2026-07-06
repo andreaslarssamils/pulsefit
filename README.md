@@ -141,7 +141,7 @@ framework's defaults.
 
 | Landing | Plans | Plan detail | Shop | Dashboard |
 | --- | --- | --- | --- | --- |
-| ![Landing on mobile](/screenshots/46-m-landing.png) | ![Plans list on mobile](/screenshots/47-m-plans-list.png) | ![Plan detail on mobile](/screenshots/48-m-plan-detail.png) | ![Shop on mobile](/screenshots/49-m-shop.png) | ![Dashboard on mobile](/screenshots/50-m-dashboard.png) |
+| ![Landing on mobile](./screenshots/46-m-landing.png) | ![Plans list on mobile](./screenshots/47-m-plans-list.png) | ![Plan detail on mobile](./screenshots/48-m-plan-detail.png) | ![Shop on mobile](./screenshots/49-m-shop.png) | ![Dashboard on mobile](./screenshots/50-m-dashboard.png) |
 
 ## Features
 
@@ -154,7 +154,7 @@ Marketing landing page served at `/`. The hero stats (member count, workouts
 logged, plans available) and the testimonials are read live from the database,
 not hard-coded. _US-39_
 
-![PulseFit landing page with hero stats and testimonials](/screenshots/01-landing.png)
+![PulseFit landing page with hero stats and testimonials](./screenshots/01-landing.png)
 
 ### Authentication & account
 
@@ -162,26 +162,26 @@ Email-based authentication via django-allauth — accounts log in with an email
 address, there are no usernames.
 
 **Register** · _US-01_
-![Registration form](/screenshots/02-signup.png)
+![Registration form](./screenshots/02-signup.png)
 
 **Log in** · _US-02_
-![Login form](/screenshots/03-login.png)
+![Login form](./screenshots/03-login.png)
 
 **Log out** · _US-03_
-![Log-out confirmation](/screenshots/34-logout-confirm.png)
+![Log-out confirmation](./screenshots/34-logout-confirm.png)
 
 **Password reset flow** · _US-04_
-![Password reset request](/screenshots/04-password-reset.png)
-![Password reset email sent](/screenshots/05-password-reset-done.png)
-![Set a new password](/screenshots/06-password-reset-from-key.png)
+![Password reset request](./screenshots/04-password-reset.png)
+![Password reset email sent](./screenshots/05-password-reset-done.png)
+![Set a new password](./screenshots/06-password-reset-from-key.png)
 
 ### Plans & programs
 
 **Plan catalogue** · _US-05_
-![Plans and programs list](/screenshots/07-plans-list.png)
+![Plans and programs list](./screenshots/07-plans-list.png)
 
 **Plan detail** · _US-06_
-![Free plan detail page](/screenshots/08-plan-detail-free.png)
+![Free plan detail page](./screenshots/08-plan-detail-free.png)
 
 ### Content gating
 
@@ -191,82 +191,82 @@ US-18_
 
 | Locked (visitor) | Locked (signed-in, non-premium) | Unlocked (access granted) |
 | --- | --- | --- |
-| ![Premium plan locked for a visitor](/screenshots/09-plan-detail-premium-locked.png) | ![Premium plan locked for a signed-in non-premium user](/screenshots/37-plan-detail-premium-locked-loggedin.png) | ![Premium plan unlocked with access granted](/screenshots/29-plan-detail-access.png) |
+| ![Premium plan locked for a visitor](./screenshots/09-plan-detail-premium-locked.png) | ![Premium plan locked for a signed-in non-premium user](./screenshots/37-plan-detail-premium-locked-loggedin.png) | ![Premium plan unlocked with access granted](./screenshots/29-plan-detail-access.png) |
 
 ### Shop
 
 **Product catalogue** · _US-07_
-![Shop product list](/screenshots/10-shop-list.png)
+![Shop product list](./screenshots/10-shop-list.png)
 
 **Product detail** · _US-08_
-![Product detail page](/screenshots/11-product-detail.png)
+![Product detail page](./screenshots/11-product-detail.png)
 
 ### Reviews
 
 Signed-in members who own or have unlocked an item can leave a star rating and
 written review. _US-28_
 
-![Review form and list on a product detail page](/screenshots/30-product-detail-review.png)
+![Review form and list on a product detail page](./screenshots/30-product-detail-review.png)
 
 ### Cart & checkout
 
 **Cart** · _US-09, US-10_
-![Shopping cart with editable line items](/screenshots/17-cart.png)
+![Shopping cart with editable line items](./screenshots/17-cart.png)
 
 **Add-to-cart feedback** · _US-38_
-![Success toast confirming an item was added to the cart](/screenshots/18-toast-added-to-cart.png)
+![Success toast confirming an item was added to the cart](./screenshots/18-toast-added-to-cart.png)
 
 **Stripe Checkout (test mode)** · _US-11_
-![Stripe-hosted checkout page](/screenshots/35-stripe-checkout.png)
+![Stripe-hosted checkout page](./screenshots/35-stripe-checkout.png)
 
 **Order confirmation** · _US-11, US-12_
-![Order success page](/screenshots/19-order-success.png)
+![Order success page](./screenshots/19-order-success.png)
 
 **Cancelled checkout**
-![Order cancelled page](/screenshots/20-order-cancel.png)
+![Order cancelled page](./screenshots/20-order-cancel.png)
 
 ### Subscriptions
 
 **Pricing** · _US-13_
-![Premium pricing page](/screenshots/16-pricing.png)
+![Premium pricing page](./screenshots/16-pricing.png)
 
 **Manage subscription** · _US-14, US-15_
-![Subscription management page with status and cancel option](/screenshots/31-subscription-manage.png)
+![Subscription management page with status and cancel option](./screenshots/31-subscription-manage.png)
 
 ### Dashboard & progress tracking
 
 **Personal dashboard** · _US-19_
-![Member dashboard with progress](/screenshots/26-dashboard.png)
+![Member dashboard with progress](./screenshots/26-dashboard.png)
 
 **Log a workout** · _US-20_
-![Log workout form](/screenshots/27-dashboard-log.png)
+![Log workout form](./screenshots/27-dashboard-log.png)
 
 **Set a weekly goal** · _US-21_
-![Set weekly goal form](/screenshots/28-dashboard-goal.png)
+![Set weekly goal form](./screenshots/28-dashboard-goal.png)
 
 ### Community
 
 **Feed** · _US-22_
-![Community feed](/screenshots/12-community-feed-loggedout.png)
+![Community feed](./screenshots/12-community-feed-loggedout.png)
 
 **Create a post** · _US-23_
-![Community post composer](/screenshots/32-community-composer.png)
+![Community post composer](./screenshots/32-community-composer.png)
 
 **Delete own post** · _US-24_
-![Delete post confirmation](/screenshots/33-community-delete-confirm.png)
+![Delete post confirmation](./screenshots/33-community-delete-confirm.png)
 
 ### Blog
 
 **Blog list** · _US-25_
-![Blog listing page](/screenshots/13-blog-list.png)
+![Blog listing page](./screenshots/13-blog-list.png)
 
 **Blog post** · _US-26_
-![Single blog post](/screenshots/14-blog-post.png)
+![Single blog post](./screenshots/14-blog-post.png)
 
 ### Challenges
 
 **Challenges** · _US-31_
-![Challenges list](/screenshots/15-challenges.png)
+![Challenges list](./screenshots/15-challenges.png)
 
 ### Navigation & premium state
 
@@ -275,48 +275,48 @@ The navigation bar adapts to authentication and premium status via the
 
 | Signed out | Signed in (non-premium) | Premium |
 | --- | --- | --- |
-| ![Navbar signed out](/screenshots/24-navbar-loggedout.png) | ![Navbar signed in, non-premium](/screenshots/36-navbar-nonpremium.png) | ![Navbar with premium badge](/screenshots/25-navbar-premium.png) |
+| ![Navbar signed out](./screenshots/24-navbar-loggedout.png) | ![Navbar signed in, non-premium](./screenshots/36-navbar-nonpremium.png) | ![Navbar with premium badge](./screenshots/25-navbar-premium.png) |
 
 ### Admin & store management
 
 Staff manage the catalogue, orders and content from the Django admin.
 
 **Admin index**
-![Django admin index](/screenshots/38-admin-index.png)
+![Django admin index](./screenshots/38-admin-index.png)
 
 **Manage plans** · _US-29_
-![Admin plans list](/screenshots/39-admin-plans.png)
+![Admin plans list](./screenshots/39-admin-plans.png)
 
 **Manage products** · _US-29_
-![Admin products list](/screenshots/40-admin-products.png)
+![Admin products list](./screenshots/40-admin-products.png)
 
 **Manage orders** · _US-30_
-![Admin orders list](/screenshots/41-admin-orders.png)
+![Admin orders list](./screenshots/41-admin-orders.png)
 
 **Manage challenges** · _US-31_
-![Admin challenges list](/screenshots/42-admin-challenges.png)
+![Admin challenges list](./screenshots/42-admin-challenges.png)
 
 **Publish blog posts** · _US-27_
-![Admin blog posts list](/screenshots/43-admin-blog.png)
+![Admin blog posts list](./screenshots/43-admin-blog.png)
 
 ### SEO & marketing
 
 **Newsletter sign-up** · _US-35_
-![Newsletter sign-up in the footer](/screenshots/21-newsletter-footer.png)
+![Newsletter sign-up in the footer](./screenshots/21-newsletter-footer.png)
 
 **sitemap.xml** · _US-33_
-![Generated sitemap.xml](/screenshots/22-sitemap.png)
+![Generated sitemap.xml](./screenshots/22-sitemap.png)
 
 **robots.txt** · _US-34_
-![Served robots.txt](/screenshots/23-robots.png)
+![Served robots.txt](./screenshots/23-robots.png)
 
 ### Defensive design
 
 **404 – Not Found** · _US-36_
-![Custom 404 page](/screenshots/44-404.png)
+![Custom 404 page](./screenshots/44-404.png)
 
 **500 – Server Error** · _US-37_
-![Custom 500 page](/screenshots/45-500.png)
+![Custom 500 page](./screenshots/45-500.png)
 
 ## EPIC 1 — Authentication & User Account
 
@@ -1381,61 +1381,61 @@ events were replayed with the Stripe CLI.
 
 Pep8 was run using pycodestyle
 
-![Screenshot of pycodestyle output](/screenshots/pycodestyle.png)
+![Screenshot of pycodestyle output](./screenshots/pycodestyle.png)
 
 ### HTML Validation
 
 Homepage were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/homepage-html-validation.png)
+![Screenshot of W3C HTML Validator output](./screenshots/homepage-html-validation.png)
 
 Product listings were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/products-html-validation.png)
+![Screenshot of W3C HTML Validator output](./screenshots/products-html-validation.png)
 
 Product detail pages were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/product-detail.png)
+![Screenshot of W3C HTML Validator output](./screenshots/product-detail.png)
 
 Cart page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/cart.png)
+![Screenshot of W3C HTML Validator output](./screenshots/cart.png)
 
 Login page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/login.png)
+![Screenshot of W3C HTML Validator output](./screenshots/login.png)
 
 Signup page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/signup.png)
+![Screenshot of W3C HTML Validator output](./screenshots/signup.png)
 
 Dashboard page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/dashboard.png)
+![Screenshot of W3C HTML Validator output](./screenshots/dashboard.png)
 
 Blog listing page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/blog.png)
+![Screenshot of W3C HTML Validator output](./screenshots/blog.png)
 
 Blog Detail page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/blog-detail.png)
+![Screenshot of W3C HTML Validator output](./screenshots/blog-detail.png)
 
 Community page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/community.png)
+![Screenshot of W3C HTML Validator output](./screenshots/community.png)
 
 Shop detail (review) page were validated with the W3C HTML Validator
 
-![Screenshot of W3C HTML Validator output](/screenshots/shop-detail-review.png)
+![Screenshot of W3C HTML Validator output](./screenshots/shop-detail-review.png)
 
 ### CSS Validation
 
-![Screenshot of W3C CSS Validator output](/screenshots/css-validation.png)
+![Screenshot of W3C CSS Validator output](./screenshots/css-validation.png)
 
 ### Pagespeed Insights
 
-![Screenshot of Pagespeed Insights output](/screenshots/pagespeed.png)
+![Screenshot of Pagespeed Insights output](./screenshots/pagespeed.png)
 
 | Tool | Scope |
 |---|---|
