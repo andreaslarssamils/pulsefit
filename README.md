@@ -20,6 +20,34 @@ Site owner's goal: Build a recurring-revenue fitness brand by combining premium 
 - Engage users with editorial blog content covering training tips, nutrition, and fitness news
 - Ensure secure authentication and reliable subscription state synchronization between Stripe and the platform
 
+## Business Model
+
+PulseFit is a business-to-consumer (B2C) fitness platform that sells structured
+training content and related physical products to people who want to train with
+a clear plan rather than piece workouts together themselves. Its customers range
+from beginners looking for a guided starting point to committed trainees who want
+progressive programming, and the site is built to turn casual visitors into
+paying customers and, ideally, into recurring members.
+
+The platform earns revenue in three ways. First, individual digital training
+plans are sold as one-time purchases through Stripe Checkout; once bought, a plan
+is owned permanently by the customer. Second, a physical shop sells equipment,
+nutrition, and merchandise as one-time purchases through the same checkout flow.
+Third, a Premium membership is offered as a recurring Stripe subscription: while
+the subscription is active it unlocks the entire premium plan catalogue, and that
+access is automatically revoked if the membership lapses. This mix balances
+predictable recurring revenue from memberships against transactional income from
+one-off plan and product sales.
+
+Around these paid offerings, PulseFit uses free content and community features to
+drive acquisition and retention rather than to generate direct revenue. A blog
+and a public community feed attract and engage visitors, member reviews provide
+social proof that supports purchase decisions, challenges encourage repeat
+engagement, and an email newsletter (via Mailchimp) gives the business a direct
+marketing channel to nurture leads and bring customers back. Together these lower
+the cost of acquiring each paying customer and raise the lifetime value of
+members and buyers.
+
 ## Design
 
 ### Wireframes
@@ -399,7 +427,7 @@ As a **visitor or member**, I can **browse all available plans and programs** so
 - Catalog page shows all active plans in a card grid
 - Each card shows: plan image placeholder, title, category, price
 - Filter tabs (All / Exercise / Nutrition) filter results without page reload
-- Empty state ("No products yet") is shown when no plans match a filter
+- Empty state ("No plans yet") is shown when no plans match a filter
 - Page is accessible without signing in
 
 **Tasks**
@@ -1056,7 +1084,7 @@ As a **site owner**, I want **a robots.txt file** so that **search engines know 
 **Tasks**
 
 - Serve `robots.txt` via a simple view or static file
-- Disallow `/admin/`, `/checkout/`, `/dashboard/`
+- Disallow `/admin/`, `/accounts/`, `/dashboard/`, `/cart/`, `/orders/`, `/subscription/`
 
 ---
 
@@ -1226,27 +1254,27 @@ events were replayed with the Stripe CLI.
 | **Navigation** | Community link | Click "Community" in the header | Opens the community feed | As expected | ✅ |
 | **Navigation** | Pricing link | Click "Pricing" in the header | Opens the pricing page | As expected | ✅ |
 | **Navigation** | Cart icon | Click the cart icon | Opens the cart; badge shows the item count | As expected | ✅ |
-| **Navigation** | Logged-out header | Load any page without signing in | Header shows only Sign in / Sign up, with no dashboard or post controls | As expected | ✅ |
-| **Navigation** | Logged-in header | Sign in and load any page | Header shows the avatar menu with Dashboard and Sign out | As expected | ✅ |
+| **Navigation** | Logged-out header | Load any page without signing in | Header shows only Sign In / Join Free, with no dashboard or post controls | As expected | ✅ |
+| **Navigation** | Logged-in header | Sign in and load any page | Header shows the avatar linking to Dashboard, plus a Sign out button | As expected | ✅ |
 | **Navigation** | Footer copyright | Load any page | Footer displays the © notice and site name | As expected | ✅ |
-| **Navigation** | Footer links | Click each footer link | All resolve to a valid page (no 404) | As expected | ✅ |
+| **Navigation** | Footer links | Click each footer link | Product/Community links resolve to real pages; About/Contact/Privacy/Terms are placeholder `#` links (no 404) | As expected | ✅ |
 | **Navigation** | External links | Click social / external links | Open in a new tab with `rel="noopener"` | As expected | ✅ |
 | **Authentication** | Register: valid | Submit registration with valid name, email, password + confirm | Account created, auto-signed in, redirected to dashboard | As expected | ✅ |
-| **Authentication** | Register: duplicate email | Submit with an email already in use | "Email already registered" error; no account created | As expected | ✅ |
+| **Authentication** | Register: duplicate email | Submit with an email already in use | Duplicate-email error shown; no account created | As expected | ✅ |
 | **Authentication** | Register: weak password | Submit with a password under 8 characters | Minimum-length error; form not submitted | As expected | ✅ |
-| **Authentication** | Register: password mismatch | Submit with confirm ≠ password | "Passwords must match" error shown | As expected | ✅ |
+| **Authentication** | Register: password mismatch | Submit with confirm ≠ password | Password-confirmation mismatch error shown | As expected | ✅ |
 | **Authentication** | Register: sign-in link | View the register page | "Sign in" link is present and navigates to login | As expected | ✅ |
 | **Authentication** | Login: valid | Sign in with correct email + password | Redirected to the dashboard | As expected | ✅ |
 | **Authentication** | Login: invalid | Sign in with a wrong password | Generic error that does not reveal whether the email exists | As expected | ✅ |
-| **Authentication** | Login: password toggle | Click the show/hide eye icon | Password text toggles between masked and visible | As expected | ✅ |
-| **Authentication** | Logout | Click sign out from the avatar menu | Session destroyed, redirected to the home page | As expected | ✅ |
+| **Authentication** | Login: password toggle | Click the show/hide toggle button | Password text toggles between masked and visible | As expected | ✅ |
+| **Authentication** | Logout | Click Sign out in the header | Session destroyed, redirected to the home page | As expected | ✅ |
 | **Authentication** | Password reset: request | Submit a registered email on "Forgot password?" | Reset email is sent | As expected | ✅ |
 | **Authentication** | Password reset: complete | Follow the link and set a new password | New password accepted; user can sign in with it | As expected | ✅ |
 | **Authentication** | Password reset: expired link | Reuse an expired / used reset link | Link rejected with an appropriate message | As expected | ✅ |
 | **Plans Catalog** | Browse plans | Open the catalog while signed out | All active plans shown in a card grid; loads without login | As expected | ✅ |
 | **Plans Catalog** | Card fields | Inspect a plan card | Image, title, category and price all render | As expected | ✅ |
 | **Plans Catalog** | Filter tabs | Click All / Exercise / Nutrition | Results filter by category without a page reload | As expected | ✅ |
-| **Plans Catalog** | Empty state | Apply a filter with no matching plans | "No products yet" empty state is shown | As expected | ✅ |
+| **Plans Catalog** | Empty state | Apply a filter with no matching plans | "No plans yet" empty state is shown | As expected | ✅ |
 | **Plans Catalog** | Plan detail | Open a plan via its slug URL | Title, description, price and category render | As expected | ✅ |
 | **Plans Catalog** | Premium plan (free user) | View a `premium_only` plan as a non-subscriber | "Go Premium" CTA and premium badge shown | As expected | ✅ |
 | **Plans Catalog** | Plan with access | View a plan the user already owns | "Access Content" button shown instead of the CTA | As expected | ✅ |
@@ -1271,7 +1299,7 @@ events were replayed with the Stripe CLI.
 | **Subscriptions** | Premium unlocked | Return to the app after subscribing | PLAN_ACCESS (`source='subscription'`) created; dashboard shows premium | As expected | ✅ |
 | **Subscriptions** | Status display | View the dashboard as an active subscriber | Plan tier, active status and next renewal date shown | As expected | ✅ |
 | **Subscriptions** | Cancelled display | View the dashboard after cancelling | End-of-access date shown (from `current_period_end`) | As expected | ✅ |
-| **Subscriptions** | Cancel | Cancel the subscription from the dashboard | `cancel_at_period_end=True` set; "Cancels on [date]" shown | As expected | ✅ |
+| **Subscriptions** | Cancel | Cancel via the Stripe billing portal (from the subscription page) | `cancel_at_period_end=True` set; "Cancels on [date]" shown | As expected | ✅ |
 | **Subscriptions** | Access after cancel | Access premium content after cancelling | Content still accessible until the period ends | As expected | ✅ |
 | **Subscriptions** | Renewal success | Replay `invoice.payment_succeeded` via Stripe CLI | `current_period_end` updated | As expected | ✅ |
 | **Subscriptions** | Renewal failure | Replay `invoice.payment_failed` | Status set to `past_due` | As expected | ✅ |
@@ -1317,7 +1345,7 @@ events were replayed with the Stripe CLI.
 | **SEO & Marketing** | Meta tags | View source on home / plans / shop / blog / pricing | Unique title + meta description per page | As expected | ✅ |
 | **SEO & Marketing** | Open Graph | Inspect `base.html` output | OG tags present on key pages | As expected | ✅ |
 | **SEO & Marketing** | Sitemap | Open `/sitemap.xml` | Valid XML including home, plans, shop, blog, pricing | As expected | ✅ |
-| **SEO & Marketing** | robots.txt | Open `/robots.txt` | Served; `/admin/`, `/checkout/`, `/dashboard/` disallowed | As expected | ✅ |
+| **SEO & Marketing** | robots.txt | Open `/robots.txt` | Served; `/admin/`, `/accounts/`, `/dashboard/`, `/cart/`, `/orders/`, `/subscription/` disallowed | As expected | ✅ |
 | **SEO & Marketing** | Newsletter: valid | Submit a valid email in the footer | Email saved; success message shown | As expected | ✅ |
 | **SEO & Marketing** | Newsletter: invalid | Submit an invalid email | Validation error; nothing saved | As expected | ✅ |
 | **Error Handling** | 404 page | Open a non-existent URL (`DEBUG=False`) | Custom 404 page with a link back home | As expected | ✅ |
@@ -1403,16 +1431,20 @@ Shop detail (review) page were validated with the W3C HTML Validator
 
 ![Screenshot of W3C CSS Validator output](/screenshots/css-validation.png)
 
-| Tool | Scope | Result |
-|---|---|---|
-| W3C HTML Validator | Rendered templates |  |
-| W3C CSS (Jigsaw) Validator | `base.css` and app styles | _(add results / screenshots)_ |
-| JSHint | Inline / static JS | _(add results / screenshots)_ |
-| CI Python Linter (PEP8) | All Python modules | _(add results; `E501` fixes in progress)_ |
+### Pagespeed Insights
+
+![Screenshot of Pagespeed Insights output](/screenshots/pagespeed.png)
+
+| Tool | Scope |
+|---|---|
+| W3C HTML Validator | Rendered templates |
+| W3C CSS (Jigsaw) Validator | `base.css` and app styles |
+| JSHint | Inline / static JS |
+| CI Python Linter (PEP8) | All Python modules |
 
 ## Automated Testing
 
-The manual testing above is backed by an automated suite of 267 passing tests:
+The manual testing above is backed by an automated suite of 301 passing tests:
 
 ```bash
 python manage.py test
@@ -1438,7 +1470,7 @@ and subscription flows), content-gating helpers and access control.
 
 ### Known issues
 
-No outstanding functional defects are known: the full automated suite (267 tests) passes and `manage.py check` reports no issues.
+No outstanding functional defects are known: the full automated suite (301 tests) passes and `manage.py check` reports no issues.
 
 One deliberate limitation remains by design — the `Challenge` model is intentionally decoupled from the rest of the schema with no participation/join table, so challenges are presented as informational content rather than tracked per user. This was a scoped-out feature, not a defect.
 

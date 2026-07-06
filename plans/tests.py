@@ -98,7 +98,7 @@ class PlanListViewTests(TestCase):
 
     def test_empty_state_visible_when_catalog_empty(self):
         resp = self.client.get(reverse("plans:list"))
-        self.assertContains(resp, "No products yet")
+        self.assertContains(resp, "No plans yet")
         self.assertNotContains(resp, "data-empty-state hidden")
 
     def test_empty_state_hidden_when_plans_exist(self):
