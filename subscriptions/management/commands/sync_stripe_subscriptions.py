@@ -9,10 +9,10 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 class Command(BaseCommand):
     help = (
-        "Backfill/reconcile local Subscription rows and premium access from "
-        "Stripe. Run once to repair subscriptions that were paid for but never "
-        "activated (e.g. while the webhook was misconfigured), and safely "
-        "re-runnable thereafter."
+        "Backfill/reconcile local Subscription rows and premium access "
+        "from Stripe. Run once to repair subscriptions that were paid "
+        "for but never activated (e.g. while the webhook was "
+        "misconfigured), and safely re-runnable thereafter."
     )
 
     def handle(self, *args, **options):

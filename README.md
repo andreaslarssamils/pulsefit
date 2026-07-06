@@ -1198,7 +1198,7 @@ As a **user**, I can **see a brief confirmation message after key actions** so t
 
 ### Languages
 
-- Python 3.12
+- Python
 - HTML5
 - CSS3
 - JavaScript
@@ -1377,11 +1377,13 @@ events were replayed with the Stripe CLI.
 
 ## Code Validation
 
-### HTML Validation
+### Python (PEP8) Validation
 
 Pep8 was run using pycodestyle
 
 ![Screenshot of pycodestyle output](/screenshots/pycodestyle.png)
+
+### HTML Validation
 
 Homepage were validated with the W3C HTML Validator
 
