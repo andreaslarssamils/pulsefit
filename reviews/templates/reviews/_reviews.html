@@ -31,9 +31,9 @@
         <li class="review card">
             <div class="review__head">
                 <span class="review__author">{{ review.user.get_full_name|default:review.user.email }}</span>
-                <span class="review__stars" aria-label="{{ review.rating }} out of 5 stars">{{ review.rating }}★</span>
+                <span class="review__stars" role="img" aria-label="{{ review.rating }} out of 5 stars">{{ review.rating }}★</span>
             </div>
-            <p class="review__body">{{ review.body|linebreaks }}</p>
+            <div class="review__body">{{ review.body|linebreaks }}</div>
             <p class="review__date text-muted">{{ review.created_at|date:"M j, Y" }}</p>
             {% if review.user == user %}
             <form method="post" action="{% url 'reviews:delete' review.pk %}">
